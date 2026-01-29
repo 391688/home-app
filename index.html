@@ -2,257 +2,115 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>スクリーンタイム管理（親用）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スマホ使用管理レポート</title>
 
-<style>
-body { font-family: -apple-system, sans-serif; padding: 20px; }
-input, button { font-size: 16px; padding: 6px; margin: 2px; }
-.box { border: 1px solid #ccc; padding: 12px; margin-bottom: 16px; }
-.parentZone { background: #f9f9f9; }
-.result { font-size: 18px; font-weight: bold; }
-.plus { color: green; }
-.minus { color: red; }
-.locked { color: #888; }
-
-table { width: 100%; border-collapse: collapse; }
-th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-th { background: #f0f0f0; }
-
-ul { padding-left: 20px; }
-li button { margin-left: 8px; }
-</style>
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="HomeApp">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-
+<meta name="theme-color" content="#2b2b2b">
 <link rel="apple-touch-icon" href="icon-180.png">
 
+<style>
+body {
+  margin: 0;
+  background: #2b2b2b;
+  color: #f0f0f0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.report {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+.block {
+  margin-bottom: 20px;
+}
+
+.label {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 6px;
+}
+
+.value {
+  font-size: 16px;
+}
+
+.big {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.money {
+  font-size: 24px;
+  color: #ffb3b3;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  background: #3a3a3a;
+  color: #fff;
+}
+
+input[type="date"] {
+  margin-bottom: 6px;
+}
+</style>
 </head>
 
 <body>
+<div class="report">
+  <h1>スマホ使用管理レポート</h1>
 
-<h1>📱 スクリーンタイム管理（親用）</h1>
+  <div class="block">
+    <div class="label">期間</div>
+    <input type="date" id="start">
+    <input type="date" id="end">
+    <div class="value" id="periodText">未設定</div>
+  </div>
 
-<!-- 親操作ゾーン -->
-<div class="box parentZone">
-<h2>👨‍👩‍👧 親用操作</h2>
+  <div class="block">
+    <div class="label">使用時間（分）</div>
+    <input type="number" id="minutes" placeholder="例：760">
+  </div>
 
-<h3>🔒 ロック解除</h3>
-<input type="password" id="passInput" maxlength="4" placeholder="現在のパスコード">
-<button onclick="unlock()">解除</button>
-<p id="lockMsg" class="locked"></p>
-
-<h3>🔑 パスコード変更</h3>
-<input type="password" id="currentPass" maxlength="4" placeholder="現在のパスコード"><br>
-<input type="password" id="newPass" maxlength="4" placeholder="新しいパスコード（4桁）"><br>
-<input type="password" id="confirmPass" maxlength="4" placeholder="確認用"><br>
-<button onclick="changePasscode()">変更</button>
-<p id="passChangeMsg"></p>
-
-<h3>⚙️ ルール設定</h3>
-<label>1日の上限時間（分）<br><input type="number" id="dailyLimit"></label><br><br>
-<label>ベース小遣い（円）<br><input type="number" id="baseAllowance"></label><br><br> 
-<label>超過1分のペナルティ（円）<br><input type="number" id="penaltyPerMin"></label><br><br> 
-<label>ボーナス時の1分あたり加算額（円）<br><input type="number" id="bonusPerMin"></label><br><br>
-<label>最大ボーナス（円）<br><input type="number" id="bonusMax"></label><br><br> 
-<button onclick="saveSettings()">設定保存</button>
-<p id="settingMsg"></p>
-
-<h3>📱 適用アプリ設定</h3>
-<input type="text" id="appInput" placeholder="アプリ名を入力">
-<button onclick="addApp()">追加</button>
-<ul id="appEditList"></ul>
-
-<h3>📅 月確定</h3>
-<p id="fixedMsg"></p>
-<button id="fixBtn" onclick="fixMonth()" disabled>今月を確定する</button>
-</div>
-
-<!-- 適用アプリ表示 -->
-<div class="box">
-<h2>📲 時間計算の対象アプリ</h2>
-<ul id="appViewList"></ul>
-</div>
-
-<!-- 日次入力 -->
-<div class="box">
-<h2>📝 日次入力</h2>
-<input type="date" id="dateInput">
-<button onclick="setToday()">今日</button><br><br>
-<input type="number" id="usedMinutes" placeholder="使用時間（分）"><br><br>
-<button id="saveBtn" onclick="save()">保存</button>
-<p id="todayResult" class="result"></p>
-</div>
-
-<!-- 月合計 -->
-<div class="box">
-<h2>💰 今月の合計</h2>
-<p id="monthTotal">0 円</p>
-</div>
-
-<!-- 一覧 -->
-<div class="box">
-<h2>📋 日別一覧</h2>
-<table>
-<thead><tr><th>日付</th><th>使用時間</th><th>金額</th></tr></thead>
-<tbody id="listBody"></tbody>
-</table>
+  <div class="block">
+    <div class="label">金額換算（1分＝1円）</div>
+    <div class="value money" id="money">−0円</div>
+  </div>
 </div>
 
 <script>
-// ===== 初期データ =====
-let settings = JSON.parse(localStorage.getItem("screenTimeSettings")) || {
-  dailyLimit: 90,
-  bonusMax: 100,
-  penaltyPerMin: 10,
-  bonusPerMin: 5,
-  baseAllowance: 100,
-  passcode: "1234"
-};
-let data = JSON.parse(localStorage.getItem("screenTimeData") || "{}");
-let fixedMonths = JSON.parse(localStorage.getItem("fixedMonths") || "[]");
-let apps = JSON.parse(localStorage.getItem("targetApps") || "[]");
+const start = document.getElementById("start");
+const end = document.getElementById("end");
+const periodText = document.getElementById("periodText");
+const minutesInput = document.getElementById("minutes");
+const moneyText = document.getElementById("money");
 
-const today = new Date().toISOString().slice(0,10);
-dateInput.value = today;
-
-// 初期反映
-dailyLimit.value = settings.dailyLimit;
-bonusMax.value = settings.bonusMax;
-penaltyPerMin.value = settings.penaltyPerMin;
-bonusPerMin.value = settings.bonusPerMin;
-baseAllowance.value = settings.baseAllowance;
-
-// ===== ロック =====
-function unlock() {
-  if (passInput.value === settings.passcode) {
-    fixBtn.disabled = false;
-    lockMsg.textContent = "解除しました";
-  } else {
-    lockMsg.textContent = "パスコードが違います";
+function updatePeriod() {
+  if (start.value && end.value) {
+    periodText.textContent = `${start.value} 〜 ${end.value}`;
   }
 }
 
-// ===== パスコード変更 =====
-function changePasscode() {
-  if (currentPass.value !== settings.passcode) return passChangeMsg.textContent = "現在のパスコードが違います";
-  if (newPass.value.length !== 4 || isNaN(newPass.value)) return passChangeMsg.textContent = "4桁の数字にしてください";
-  if (newPass.value !== confirmPass.value) return passChangeMsg.textContent = "確認用が一致しません";
-
-  settings.passcode = newPass.value;
-  localStorage.setItem("screenTimeSettings", JSON.stringify(settings));
-  passChangeMsg.textContent = "変更しました";
-  currentPass.value = newPass.value = confirmPass.value = "";
+function updateMoney() {
+  const m = Number(minutesInput.value) || 0;
+  moneyText.textContent = `−${m}円`;
 }
 
-// ===== ルール保存 =====
-function saveSettings() {
-  settings.dailyLimit = Number(dailyLimit.value);
-  settings.bonusMax = Number(bonusMax.value);
-  settings.penaltyPerMin = Number(penaltyPerMin.value);
-  settings.bonusPerMin = Number(bonusPerMin.value);
-  settings.baseAllowance = Number(baseAllowance.value);
-  localStorage.setItem("screenTimeSettings", JSON.stringify(settings));
-  settingMsg.textContent = "保存しました（即反映）";
-}
-
-// ===== 適用アプリ =====
-function addApp() {
-  const name = appInput.value.trim();
-  if (!name || apps.includes(name)) return;
-  apps.push(name);
-  saveApps();
-  appInput.value = "";
-}
-
-function removeApp(i) {
-  apps.splice(i, 1);
-  saveApps();
-}
-
-function saveApps() {
-  localStorage.setItem("targetApps", JSON.stringify(apps));
-  renderApps();
-}
-
-function renderApps() {
-  appEditList.innerHTML = "";
-  appViewList.innerHTML = "";
-  apps.forEach((a, i) => {
-    appEditList.innerHTML += `<li>${a}<button onclick="removeApp(${i})">削除</button></li>`;
-    appViewList.innerHTML += `<li>${a}</li>`;
-  });
-}
-
-// ===== 月確定 =====
-function fixMonth() {
-  const m = dateInput.value.slice(0,7);
-  if (!confirm(m + " を確定します。")) return;
-  fixedMonths.push(m);
-  localStorage.setItem("fixedMonths", JSON.stringify(fixedMonths));
-  updateFixedState();
-}
-
-// ===== 日次 =====
-function setToday(){ dateInput.value = today; showAll(today); }
-
-function save() {
-  const d = dateInput.value;
-  if (fixedMonths.includes(d.slice(0,7))) return alert("確定済みです");
-  const used = Number(usedMinutes.value);
-  const diff = settings.dailyLimit - used;
-
-  // 収支計算（ボーナス対応）
-  let money = settings.baseAllowance;
-  if(diff >= 0) {
-    money += Math.min(settings.bonusMax, diff * settings.bonusPerMin);
-  } else {
-    money += diff * settings.penaltyPerMin;
-  }
-
-  data[d] = { used, money };
-  localStorage.setItem("screenTimeData", JSON.stringify(data));
-  showAll(d);
-}
-
-// ===== 表示 =====
-function showAll(d){ showDay(d); showMonth(d); showList(d); updateFixedState(); }
-
-function showDay(d){
-  if(!data[d]) return;
-  todayResult.textContent = `${d}：${data[d].money} 円`;
-  todayResult.className = "result " + (data[d].money>=0?"plus":"minus");
-  usedMinutes.value = data[d].used;
-}
-
-function showMonth(d){
-  let t=0,m=d.slice(0,7);
-  Object.keys(data).forEach(k=>{ if(k.startsWith(m)) t+=data[k].money; });
-  monthTotal.textContent = `${t} 円`;
-}
-
-function showList(d){
-  const m=d.slice(0,7);
-  listBody.innerHTML="";
-  Object.keys(data).filter(k=>k.startsWith(m)).sort().forEach(k=>{
-    listBody.innerHTML+=`<tr><td>${k}</td><td>${data[k].used}</td><td class="${data[k].money>=0?"plus":"minus"}">${data[k].money}</td></tr>`;
-  });
-}
-
-function updateFixedState(){
-  const m=dateInput.value.slice(0,7);
-  const f=fixedMonths.includes(m);
-  fixedMsg.textContent=f?"この月は確定済み":"";
-  saveBtn.disabled=f;
-}
-
-dateInput.addEventListener("change",e=>showAll(e.target.value));
-renderApps();
-showAll(today);
+start.addEventListener("change", updatePeriod);
+end.addEventListener("change", updatePeriod);
+minutesInput.addEventListener("input", updateMoney);
 </script>
-
 </body>
 </html>
