@@ -28,6 +28,8 @@ li button { margin-left: 8px; }
 <meta name="apple-mobile-web-app-title" content="HomeApp">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
+<link rel="apple-touch-icon" href="icon-180.png">
+
 </head>
 
 <body>
@@ -52,10 +54,10 @@ li button { margin-left: 8px; }
 
 <h3>⚙️ ルール設定</h3>
 <label>1日の上限時間（分）<br><input type="number" id="dailyLimit"></label><br><br>
-<label>最大ボーナス（円）<br><input type="number" id="bonusMax"></label><br><br>
-<label>超過1分のペナルティ（円）<br><input type="number" id="penaltyPerMin"></label><br><br>
+<label>ベース小遣い（円）<br><input type="number" id="baseAllowance"></label><br><br> 
+<label>超過1分のペナルティ（円）<br><input type="number" id="penaltyPerMin"></label><br><br> 
 <label>ボーナス時の1分あたり加算額（円）<br><input type="number" id="bonusPerMin"></label><br><br>
-<label>ベース小遣い（円）<br><input type="number" id="baseAllowance"></label><br><br>
+<label>最大ボーナス（円）<br><input type="number" id="bonusMax"></label><br><br> 
 <button onclick="saveSettings()">設定保存</button>
 <p id="settingMsg"></p>
 
