@@ -11,7 +11,7 @@
 }
 body{ font-family: Arial, sans-serif; width: 100%; max-width: 500px; margin: 0 auto; padding: 15px; background:#f4f6f9; padding-bottom:80px; overflow-x: hidden; }
 .section{ background:white; padding:15px; margin-bottom:15px; margin-top:20px; border-radius:10px; width: 100%; }
-input{ width:100%; padding:8px; margin:5px 0; box-sizing: border-box; }
+input{ width:100%; padding:8px 4px; margin:5px 0; box-sizing: border-box; min-height: 38px; }
 button{ padding:12px; width:100%; margin-top:12px; border:none; border-radius:10px; background:#4CAF50; color:white; font-size:15px; cursor:pointer; }
 .plus{ color:blue; } .minus{ color:red; } .zero{ color:black; }
 h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
@@ -67,11 +67,11 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
     gap: 8px;
 }
 .avg-label{ text-align:center; font-weight:bold; }
-.input-group{ flex:1; display:flex; justify-content:flex-end; align-items:center; gap:8px; }
+.input-group { display: flex; align-items: center; width: auto; flex-shrink: 0; }
 .input-group input{ width:70px; text-align:right; padding:4px; }
 .time-group input{ width:50px; }
 .settings-card{ background:white; border-radius:12px; padding:8px 12px; margin-bottom:18px; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
-.form-row{ display:flex; align-items:center; justify-content:space-between; margin:8px 0; font-size:15px; }
+.form-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 5px; }
 .form-row label{ width:200px; flex:none; text-align:left; font-size:14px; color:#333; }
 .month-select-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .month-select-controls{ flex:1; display:flex; align-items:center; justify-content:flex-end; gap:8px; }
@@ -95,7 +95,9 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
 .panel-title{ font-size:16px; font-weight:700; margin-bottom:14px; color:#333; }
 
 
-.input-group-date { display: flex; align-items: center; width: 100%; background: #fff; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; position: relative; }
+.input-group-date { display: flex; align-items: center; justify-content: space-between; }
+.input-group-date input { width: 75%; }
+#weekday-in { width: 20%; text-align: right; }
 #date { border: none; width: 100%; padding: 10px; font-size: 16px; outline: none; background: transparent; cursor: pointer; }
 #weekday-in { position: absolute; right: 340px; top: 45%; transform: translateY(-50%); pointer-events: none; font-size: 15px; }
 .app-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; width:100%; }
