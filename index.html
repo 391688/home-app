@@ -2,266 +2,166 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>親用：日別使用時間管理</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>親用：日別使用時間管理（iPhone最適化）</title>
 
 <style>
-* {
+/* ====== 全体レイアウト ====== */
+body {
+    font-family: Arial, sans-serif;
+    width: 100%;
+    margin: 0 auto;
+    padding: 16px;
+    background: #f4f6f9;
+    padding-bottom: 90px;
     box-sizing: border-box;
 }
-body{ font-family: Arial, sans-serif; width: 100%; max-width: 500px; margin: 0 auto; padding: 15px; background:#f4f6f9; padding-bottom:80px; overflow-x: hidden; }
-.section{ background:white; padding:15px; margin-bottom:15px; margin-top:20px; border-radius:10px; width: 100%; }
-input{ width:100%; padding:8px 4px; margin:5px 0; box-sizing: border-box; min-height: 38px; }
-button{ padding:12px; width:100%; margin-top:12px; border:none; border-radius:10px; background:#4CAF50; color:white; font-size:15px; cursor:pointer; }
-.plus{ color:blue; } .minus{ color:red; } .zero{ color:black; }
-h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
-#appList{ margin-top:10px; }
-.section h3{ margin-bottom:10px; }
-.page{ display:none; }
-.page.active{ display:block; }
-.tabbar{ position:fixed; bottom:0; left:0; width:100%; background:white; display:flex; justify-content:center; border-top: 1px solid #ddd; z-index: 100; }
-.tabbar button{ background:none; color:#555; font-size:12px; width:auto; margin-top:0; }
-.tabbar button.active{ color:#2196F3; font-weight:bold; }
-.result-row{ display:flex; justify-content:space-between; margin:5px 0; background:white; padding:10px; border-radius:8px; }
-.max{ color:#FFB300; }
-.summary-row{ display:grid; grid-template-columns: 1fr auto; align-items:center; margin:6px 0; font-weight:normal; }
-.summary-row .label{ text-align:left; }
-.summary-row .value{ min-width:120px; text-align:right; }
-.month-table{ width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
-.month-table thead tr {
-    background-color: #f2f2f2;
-    border-bottom: 3px double #ddd;
-}
-.month-table tfoot tr {
-    background-color: #f2f2f2;
-    border-top: 3px double #ddd;
-}
-.month-table th, .month-table td{ border:1px solid #ddd; padding:4px; text-align:center; vertical-align:middle; }
-.month-table tfoot td:first-child{ text-align:center; font-weight:bold; }
 
-.toast{ position:fixed; bottom:70px; left:50%; transform:translateX(-50%); background:#323232; color:white; padding:10px 18px; border-radius:20px; font-size:13px; opacity:0; transition:opacity .3s, bottom .3s; pointer-events:none; z-index:999; }
-.toast.show{ opacity:1; bottom:90px; }
-.row{ display:flex; justify-content:space-between; margin:6px 0; font-size:15px; }
-.money-right{ text-align:right; min-width:90px; font-weight:bold; }
-.effort-block{ font-size:12px; color:#333; line-height:1.6; text-align:left; margin-top:2px; }
-.btn-edit, .btn-delete { 
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    font-size: 11px; 
-    border-radius: 6px;
-    color: white; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-}
-.btn-edit { background: #4CAF50; } 
-.btn-delete { background: #f44336; }
-
-.btn-row { 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 8px;
-}
-.avg-label{ text-align:center; font-weight:bold; }
-.input-group { display: flex; align-items: center; width: auto; flex-shrink: 0; }
-.input-group input{ width:70px; text-align:right; padding:4px; }
-.time-group input{ width:50px; }
-.settings-card{ background:white; border-radius:12px; padding:8px 12px; margin-bottom:18px; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
-.form-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 5px; }
-.form-row label{ width:200px; flex:none; text-align:left; font-size:14px; color:#333; }
-.month-select-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-.month-select-controls{ flex:1; display:flex; align-items:center; justify-content:flex-end; gap:8px; }
-.month-select-controls input[type=\"month\"]{ height:32px; line-height:32px; padding:0 8px; border-radius:6px; border:1px solid #ccc; width:auto; }
-.month-select-controls button {
-    width: 35px;
-    height: 30px;
-    padding: 0;
-    margin: 0 2px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center; 
-    justify-content: center;
-    vertical-align: middle;
-}
-.monthly-header{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
-.danger-btn{ background:#FFC107; color:#000; border-radius:6px; padding:6px 12px; font-size:13px; width:auto; margin-bottom:26px; }
-.daily-review-panel{ background:#ffffff; border-radius:12px; padding:16px 18px 18px; margin-top:18px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
-.panel-title{ font-size:16px; font-weight:700; margin-bottom:14px; color:#333; }
-
-
-.input-group-date { display: flex; align-items: center; justify-content: space-between; }
-.input-group-date input { width: 75%; }
-#weekday-in { width: 20%; text-align: right; }
-#date { border: none; width: 100%; padding: 10px; font-size: 16px; outline: none; background: transparent; cursor: pointer; }
-#weekday-in { position: absolute; right: 340px; top: 45%; transform: translateY(-50%); pointer-events: none; font-size: 15px; }
-.app-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; width:100%; }
-.app-name { flex: 1.8; border: 1px solid #ddd; border-radius: 6px; padding: 8px; font-size: 15px; width: 100%; }
-.unit-input-group { display: flex; align-items: center; background: #eee; border-radius: 6px; padding: 0 6px; flex: 1; }
-.unit-input-group input { width: 100%; border: none; background: transparent; text-align: right; padding: 8px 2px; font-size: 15px; outline: none; }
-.unit-text { font-size: 11px; color: #666; white-space: nowrap; }
-.week-sat { color: #0066ff; } .week-sun, .week-holiday { color: #ff0000; }
-
-#page-home .section, #page-home .daily-review-panel, #page-home .settings-card {
-    background: #ffffff;
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-#page-home h3 {
-    font-size: 15px;
-    color: #1a1a1a;
-    border-left: 4px solid #4CAF50;
-    padding-left: 10px;
+/* ====== セクション ====== */
+.section {
+    background: white;
+    padding: 15px;
     margin-bottom: 15px;
-    display: flex;
-    align-items: center;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-
-#page-home input[type="text"], 
-#page-home input[type="number"], 
-#page-home input[type="date"] {
-    height: 38px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 0 10px;
-    font-size: 14px;
-    transition: all 0.2s;
-    background: #fdfdfd;
+h3 {
+    margin-top: 0;
+    border-left: 4px solid #4CAF50;
+    padding-left: 8px;
+    font-size: 15px;
 }
 
-#page-home input:focus {
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 3px rgba(74, 175, 80, 0.1);
-    outline: none;
+/* ====== 入力欄 ====== */
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    box-sizing: border-box;
+    font-size: 15px;
 }
 
+/* ====== ボタン ====== */
+button {
+    padding: 12px;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    background: #4CAF50;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+}
 
+/* ====== アプリ入力行 ====== */
 .app-row {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 40px;
+    grid-template-columns: 1.6fr 1fr 1fr auto;
     gap: 8px;
     align-items: center;
     margin-bottom: 12px;
+    width: 100%;
 }
 
+.app-name {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+}
 
 .unit-input-group {
-    height: 38px;
+    display: flex;
+    align-items: center;
     background: #f5f5f5;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    overflow: hidden;
+    padding: 0 6px;
 }
 
-
-.form-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 45px;
-    border-bottom: 1px solid #f9f9f9;
+.unit-input-group input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: right;
+    padding: 8px 2px;
+    font-size: 15px;
 }
 
-.form-row label {
-    font-weight: 500;
-    color: #555;
+/* ====== 月間テーブル（横スクロール対応） ====== */
+.month-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.month-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
     font-size: 13px;
 }
 
-
-.result-row {
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-.result-row:last-of-type { border-bottom: none; }
-
-.result-row span:last-child {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-}
-
-
-#page-home .daily-review-panel button {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    height: 48px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    margin-top: 10px;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-}
-
-
-.screenshot-card {
-    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-    border-radius: 24px;
-    padding: 30px 25px;
-    color: white;
+.month-table th, .month-table td {
+    border: 1px solid #ddd;
+    padding: 6px;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
 
-.progress-period-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    padding: 4px 15px;
+/* ====== タブバー ====== */
+.tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #ddd;
+    padding: 8px 0;
+}
+
+.tabbar button {
+    background: none;
+    color: #555;
+    font-size: 12px;
+    width: auto;
+}
+
+.tabbar button.active {
+    color: #2196F3;
+    font-weight: bold;
+}
+
+/* ====== トースト ====== */
+.toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #323232;
+    color: white;
+    padding: 10px 18px;
     border-radius: 20px;
     font-size: 13px;
-    margin-bottom: 20px;
-    letter-spacing: 0.5px;
+    opacity: 0;
+    transition: opacity .3s, bottom .3s;
+    pointer-events: none;
+    z-index: 999;
 }
-
-.main-stat-container {
-    margin-bottom: 30px;
-}
-
-.main-stat-label {
-    font-size: 12px;
-    opacity: 0.8;
-    margin-bottom: 5px;
-}
-
-.main-stat-value {
-    font-size: 48px;
-    font-weight: 800;
-    line-height: 1;
-    text-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-.sub-stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.sub-stat-item {
-    background: rgba(255,255,255,0.08);
-    padding: 15px;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.sub-stat-amount {
-    font-size: 22px;
-    font-weight: bold;
-    display: block;
+.toast.show {
+    opacity: 1;
+    bottom: 100px;
 }
 </style>
 </head>
 
 <body>
+
 <h1 style="text-align:center;">👨‍👩‍👧 親用スマホ管理</h1>
 <p style="text-align:center; color:#666;">使用時間 × 小遣い連動システム</p>
+
 
 <div id="page-home" class="page active">
   <div class="section">
