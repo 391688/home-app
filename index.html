@@ -392,6 +392,13 @@ input[type="number"] {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch; /* ← iPhoneで滑らかスクロール */
 }
+
+@media (max-width: 600px) {
+  body {
+    max-width: 100%;
+    padding: 16px; /* スマホで余白が多すぎないように調整 */
+  }
+}
 </style>
 </head>
 
