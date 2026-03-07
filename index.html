@@ -407,6 +407,29 @@ input[type="number"] {
     padding: 16px;
   }
 }
+/* ▼ タブバーと被らないように下余白を調整 ▼ */
+
+/* 管理タブ：少し余白 */
+#page-home {
+    padding-bottom: 90px;
+}
+
+/* 月タブ：管理の倍くらい余白 */
+#page-month {
+    padding-bottom: 140px;
+}
+
+/* レポートタブ：月タブと同じくらい余白 */
+#page-report {
+    padding-bottom: 140px;
+}
+
+/* ▼ レポートタブの左右の白枠を減らす（カードを広げる） ▼ */
+#page-report .report-card {
+    width: 90%;
+    max-width: 360px; /* 画面に合わせて自然に広がる */
+    margin: 0 auto;
+}
 </style>
 </head>
 
@@ -540,7 +563,7 @@ input[type="number"] {
 </div>
 <div id="page-report" class="page">
   <div style="background:linear-gradient(135deg,#4CAF50,#2196F3); padding:30px 0; display:flex; justify-content:center;">
-    <div class="report-card" style="background:white; width:340px; border-radius:30px; padding:25px; box-shadow:0 20px 40px rgba(0,0,0,0.2); text-align:center;">
+    <div class="report-card" style="background:white; border-radius:30px; padding:25px; box-shadow:0 20px 40px rgba(0,0,0,0.2); text-align:center;">
       <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">表示月</label><input type="month" id="reportMonthInput" style="width:100%;padding:6px;border-radius:8px;border:1px solid #ddd;"></div>
       <div id="reportMonth" style="font-size:14px;color:#777;"></div>
       <div style="font-size:19px;font-weight:bold;margin:10px 0;">📱 今月のスマホ管理レポート</div>
