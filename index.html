@@ -48,12 +48,12 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
 .money-right{ text-align:right; min-width:90px; font-weight:bold; }
 .effort-block{ font-size:12px; color:#333; line-height:1.6; text-align:left; margin-top:2px; }
 .delete-btn {
-    width: 32px;
-    height: 32px;
+    width: 19px;
+    height: 19px;
     background: #f44336;   /* 赤 */
     color: #fff;
     border: none;
-    border-radius: 8px;    /* 角丸 */
+    border-radius: 5px;    /* 角丸 */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,6 +64,8 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
     
     position: relative;
     top: -5px;   /* ← これで少し上に動く */
+
+    margin-left: auto;   /* ← これで右端に押し出す */
 }
 
 .btn-edit, .btn-delete { 
@@ -197,11 +199,11 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
 
 
 .app-row {
-    display: grid;
-    grid-template-columns: 2fr auto auto 40px;
-    gap: 8px;
+    display: flex;
     align-items: center;
-    margin-bottom: 12px;
+    gap: 6px;
+    margin-bottom: 10px;
+    width: 100%;
 }
 
 
@@ -317,7 +319,7 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
 
 .simple-input {
     height: 38px;
-    width: 50px;        /* ← 時間と分の横幅を揃える */
+    width: 40px;        /* ← 時間と分の横幅を揃える */
     background: white;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -325,7 +327,7 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
     font-size: 14px;
     box-sizing: border-box;
     text-align: right;
-
+    margin-left: -2px;
 }
 
 .unit-text {
