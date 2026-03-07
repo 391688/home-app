@@ -46,7 +46,7 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
 .toast.show{ opacity:1; bottom:90px; }
 .row{ display:flex; justify-content:space-between; margin:6px 0; font-size:15px; }
 .money-right{ text-align:right; min-width:90px; font-weight:bold; }
-.effort-block{ font-size:12px; color:#333; line-height:1.6; text-align:left; margin-top:2px; }
+.effort-block{ font-size:12px; color:#333; line-height:1.6; text-align:left; margin-top:3px; }
 .delete-btn {
     width: 19px;
     height: 19px;
@@ -296,17 +296,34 @@ h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
     margin-top: 20px;
 }
 
+/* カードの高さを揃える（ここが最重要） */
 .sub-stat-item {
     background: rgba(255,255,255,0.08);
     padding: 15px;
     border-radius: 16px;
     border: 1px solid rgba(255,255,255,0.1);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* ← 上下バランスを均等に */
+    align-items: center;
+    text-align: center;
+
+    height: 65px;  /* ← ここで高さを固定する（調整OK） */
+}
+
+/* ラベルの高さも揃えるとさらに安定 */
+.sub-stat-item .stat-label {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sub-stat-amount {
     font-size: 22px;
     font-weight: bold;
-    display: block;
+    text-align: center;
 }
 
 .time-cell {
@@ -611,11 +628,11 @@ input[type="number"] {
 
             <div class="sub-stats-grid">
                 <div class="sub-stat-item">
-                    <div class="stat-label" style="font-size:11px; opacity:0.7; margin-bottom:5px;">翌月推定小遣い</div>
+                    <div class="stat-label" style="font-size:11px; opacity:0.7; margin-bottom:5px;">翌月暫定小遣い</div>
                     <span id="progFinalMoney" class="sub-stat-amount" style="color: #4effca;">0 円</span>
                 </div>
                 <div class="sub-stat-item">
-                    <div class="stat-label" style="font-size:11px; opacity:0.7; margin-bottom:5px;">平均がんばり</div>
+                    <div class="stat-label" style="font-size:11px; opacity:0.7; margin-bottom:5px;">平均がんばり時間</div>
                     <span id="progEffort" class="sub-stat-amount">0h00m</span>
                 </div>
             </div>
