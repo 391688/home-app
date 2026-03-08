@@ -1134,6 +1134,17 @@ document.addEventListener("click", (e) => {
     limitDropdown.style.display = "none";
   }
 });
+
+<textarea id="importBox" placeholder="ここに貼り付け"></textarea>
+<button onclick="importData()">インポート</button>
+
+<script>
+function importData() {
+  const text = document.getElementById('importBox').value;
+  localStorage.setItem('storageKey', text);
+  alert('インポート完了！');
+}
+    
 </script>
 </body>
 </html>
