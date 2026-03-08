@@ -1134,6 +1134,16 @@ document.addEventListener("click", (e) => {
     limitDropdown.style.display = "none";
   }
 });
+
+<button onclick="copyData()">データをコピー</button>
+<script>
+function copyData() {
+  const data = localStorage.getItem('storageKey');
+  navigator.clipboard.writeText(data);
+  alert('データをコピーしました！');
+}
+    
 </script>
 </body>
+
 </html>
