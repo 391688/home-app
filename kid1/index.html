@@ -481,6 +481,16 @@ input[type="number"] {
   opacity: 1;
 }
 
+.backup-btn {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background: #4CAF50;
+  color: white;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
 </style>
 </head>
 
@@ -679,6 +689,11 @@ input[type="number"] {
 </div>
 
 <div id="toast" class="toast">保存しました！</div>
+
+<button onclick="exportBackup()" class="backup-btn">履歴のバックアップをエクスポート</button>
+<button onclick="document.getElementById('backupFile').click()" class="backup-btn">バックアップから履歴をインポート</button>
+
+<input type="file" id="backupFile" accept="application/json" style="display:none" onchange="importBackup(event)">
 
 <script>
 // 外部APIを使わず、内部データに変更
@@ -1153,18 +1168,61 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// ------------------------------
+// バックアップをエクスポート
+// ------------------------------
+function exportBackup() {
+  const data = localStorage.getItem("dailyData") || "{}";
 
+  // 今日の日付を YYYY-MM-DD 形式で作る
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const dateStr = `${yyyy}-${mm}-${dd}`;
 
-function importData() {
-  const text = document.getElementById('importBox').value;
-  localStorage.setItem('dailyData', text);
-  alert('インポート完了！');
+  // URL からアプリ名を自動判別
+  let appName = "home";
+  if (location.pathname.includes("kid1")) appName = "kid1";
+  if (location.pathname.includes("kid2")) appName = "kid2";
+
+  // ファイル名を作成
+  const fileName = `${dateStr}_${appName}_backup.json`;
+
+  const blob = new Blob([data], { type: "application/json" });
+  const file = new File([blob], fileName, { type: "application/json" });
+
+  if (navigator.share) {
+    navigator.share({
+      files: [file],
+      title: "バックアップ",
+      text: "履歴データのバックアップです"
+    }).then(() => {
+      alert("エクスポートされました！");
+    }).catch(err => {
+      console.log(err);
+    });
+  } else {
+    alert("この機能はこの端末では利用できません");
+  }
 }
-    
-</script>
 
-<textarea id="importBox" placeholder="ここに貼り付け"></textarea>
-<button onclick="importData()">インポート</button>
-    
+// ------------------------------
+// バックアップをインポート
+// ------------------------------
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    localStorage.setItem("dailyData", text);
+    alert("インポートされました！");
+  };
+  reader.readAsText(file);
+}
+
+</script>    
 </body>
 </html>
