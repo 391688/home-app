@@ -1135,8 +1135,8 @@ document.addEventListener("click", (e) => {
   }
 });
 
-<button onclick="copyData()">データをコピー</button>
-<script>
+
+
 function copyData() {
   const data = localStorage.getItem('storageKey');
   navigator.clipboard.writeText(data);
@@ -1144,6 +1144,10 @@ function copyData() {
 }
     
 </script>
+
+<button onclick="copyData()">データをコピー</button>
+    
 </body>
 
 </html>
+
