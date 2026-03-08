@@ -481,14 +481,31 @@ input[type="number"] {
   opacity: 1;
 }
 
-.backup-btn {
+.backup-buttons {
+  margin-top: 40px;   /* ← 上タブに隠れない */
+  margin-bottom: 80px; /* ← 下タブに隠れない */
+}
+
+.export-btn {
   width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  background: #4CAF50;
+  padding: 14px;
+  margin: 10px 0;
+  background: #4CAF50; /* 緑 */
   color: white;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 17px;
+  border: none;
+}
+
+.import-btn {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  background: #2196F3; /* 青 */
+  color: white;
+  border-radius: 10px;
+  font-size: 17px;
+  border: none;
 }
 
 </style>
@@ -690,10 +707,12 @@ input[type="number"] {
 
 <div id="toast" class="toast">保存しました！</div>
 
-<button onclick="exportBackup()" class="backup-btn">履歴のバックアップをエクスポート</button>
-<button onclick="document.getElementById('backupFile').click()" class="backup-btn">バックアップから履歴をインポート</button>
+<div class="backup-buttons">
+  <button onclick="exportBackup()" class="export-btn">履歴のバックアップをエクスポート</button>
+  <button onclick="document.getElementById('backupFile').click()" class="import-btn">バックアップから履歴をインポート</button>
 
-<input type="file" id="backupFile" accept="application/json" style="display:none" onchange="importBackup(event)">
+  <input type="file" id="backupFile" accept="application/json" style="display:none" onchange="importBackup(event)">
+</div>
 
 <script>
 // 外部APIを使わず、内部データに変更
