@@ -481,16 +481,32 @@ input[type="number"] {
   opacity: 1;
 }
 
-#copyDataBtn {
-  position: fixed;
-  bottom: 100px; /* ← タブより上に出す */
-  right: 20px;
-  padding: 10px 14px;
-  background: #4CAF50;
+.backup-buttons {
+  margin-top: 40px;
+  margin-bottom: 80px;
+}
+
+.export-btn {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  background: #4CAF50; /* 緑 */
   color: white;
-  border-radius: 8px;
-  z-index: 9999; /* ← これが最重要 */
-}  
+  border-radius: 10px;
+  font-size: 17px;
+  border: none;
+}
+
+.import-btn {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  background: #2196F3; /* 青 */
+  color: white;
+  border-radius: 10px;
+  font-size: 17px;
+  border: none;
+}
     
 </style>
 </head>
@@ -690,6 +706,12 @@ input[type="number"] {
 </div>
 
 <div id="toast" class="toast">保存しました！</div>
+
+<div class="backup-buttons">
+  <button class="export-btn" onclick="exportBackup()">履歴のバックアップをエクスポート</button>
+  <button class="import-btn" onclick="document.getElementById('backupFile').click()">バックアップから履歴をインポート</button>
+  <input type="file" id="backupFile" accept="application/json" style="display:none" onchange="importBackup(event)">
+</div>
 
 <script>
 // 外部APIを使わず、内部データに変更
@@ -1164,21 +1186,46 @@ document.addEventListener("click", (e) => {
   }
 });
 
+function exportBackup() {
+  const data = localStorage.getItem("dailyData") || "{}";
 
+  // 今日の日付を YYYY-MM-DD 形式で作る
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const dateStr = `${yyyy}-${mm}-${dd}`;
 
-function copyData() {
-  const data = localStorage.getItem('dailyData'); // ← あなたのキー名
-  navigator.clipboard.writeText(data);
-  alert('コピーしました！');
+  // URL からアプリ名を自動判別
+  let appName = "home";
+  if (location.pathname.includes("kid1")) appName = "kid1";
+  if (location.pathname.includes("kid2")) appName = "kid2";
+
+  // ファイル名を作成
+  const fileName = `${dateStr}_${appName}_backup.json`;
+
+  const blob = new Blob([data], { type: "application/json" });
+  const file = new File([blob], fileName, { type: "application/json" });
+
+  if (navigator.share) {
+    navigator.share({
+      files: [file],
+      title: "バックアップ",
+      text: "履歴データのバックアップです"
+    }).then(() => {
+      alert("エクスポートされました！");
+    }).catch(err => {
+      console.log(err);
+    });
+  } else {
+    alert("この機能はこの端末では利用できません");
+  }
 }
-    
-</script>
 
-<button id="copyDataBtn" onclick="copyData()">コピー</button>
-    
+</script>   
 </body>
-
 </html>
+
 
 
 
