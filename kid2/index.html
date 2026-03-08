@@ -466,11 +466,29 @@ input[type="number"] {
     text-align: left !important;
     color: #333;
 }
+
+#refreshBtn {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  font-size: 22px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  z-index: 9999;
+}
+#refreshBtn:hover {
+  opacity: 1;
+}
+
 </style>
 </head>
 
 <body>
-<h1 style="text-align:center;">👨‍👩‍👧 いろは/スマホ管理</h1>
+<div id="refreshBtn" onclick="location.reload()">
+  🔄
+</div>
+<h1 style="text-align:center;">いろは/スマホ管理</h1>
 <p style="text-align:center; color:#666;">使用時間 × 小遣い連動システム</p>
 
 <div id="page-home" class="page active">
