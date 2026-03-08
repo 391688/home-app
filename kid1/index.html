@@ -1,1 +1,1139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<title>朔也/スマホ管理</title>
 
+<style>
+body{ font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; background:#f4f6f9; padding-bottom:80px; }
+.section{ background:white; padding:15px; margin-bottom:15px; margin-top:20px; border-radius:10px; }
+input{ width:100%; padding:8px; margin:5px 0; box-sizing: border-box; }
+button{ padding:12px; width:100%; margin-top:12px; border:none; border-radius:10px; background:#4CAF50; color:white; font-size:15px; cursor:pointer; }
+.plus{ color:blue; } .minus{ color:red; } .zero{ color:black; }
+h3{ margin-top:0; border-left:5px solid #4CAF50; padding-left:8px; }
+#appList{ margin-top:10px; }
+.section h3{ margin-bottom:10px; }
+.page{ display:none; }
+.page.active{ display:block; }
+.tabbar{ position:fixed; bottom:0; left:0; width:100%; background:white; display:flex; justify-content:space-around; border-top:1px solid #ddd; padding:8px 0; }
+.tabbar button{ background:none; color:#555; font-size:12px; width:auto; margin-top:0; }
+.tabbar button.active{ color:#2196F3; font-weight:bold; }
+.result-row{ display:flex; justify-content:space-between; margin:5px 0; background:white; padding:10px; border-radius:8px; }
+.max{ color:#FFB300; }
+.summary-row{ display:grid; grid-template-columns: 1fr auto; align-items:center; margin:6px 0; font-weight:bold; }
+.summary-row .label{ text-align:left; }
+.summary-row .value{ min-width:120px; text-align:right; }
+.month-table{
+    width: max-content;
+    min-width: 100%;
+    border-collapse:collapse;
+    font-size:13px;
+    table-layout:fixed;
+}
+.month-table thead tr {
+    background-color: #f2f2f2;
+    border-bottom: 3px double #ddd;
+}
+.month-table tfoot tr {
+    background-color: #f2f2f2;
+    border-top: 3px double #ddd;
+}
+.month-table th, .month-table td{ border:1px solid #ddd; padding:4px; text-align:center; vertical-align:middle; }
+.month-table tfoot td:first-child{ text-align:center; font-weight:bold; }
+
+.toast{ position:fixed; bottom:70px; left:50%; transform:translateX(-50%); background:#323232; color:white; padding:10px 18px; border-radius:20px; font-size:13px; opacity:0; transition:opacity .3s, bottom .3s; pointer-events:none; z-index:999; }
+.toast.show{ opacity:1; bottom:90px; }
+.row{ display:flex; justify-content:space-between; margin:6px 0; font-size:15px; }
+.money-right{ text-align:right; min-width:90px; font-weight:bold; }
+.effort-block{ font-size:12px; color:#333; line-height:1.6; text-align:left; margin-top:3px; }
+.delete-btn {
+    width: 19px;
+    height: 19px;
+    background: #f44336;   /* 赤 */
+    color: #fff;
+    border: none;
+    border-radius: 5px;    /* 角丸 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;       /* ×が見やすいように */
+    cursor: pointer;
+    padding: 0;
+    align-self: center;    /* 念のため中央に固定 */
+    
+    position: relative;
+    top: -5px;   /* ← これで少し上に動く */
+
+    margin-left: auto;   /* ← これで右端に押し出す */
+}
+
+.btn-edit, .btn-delete { 
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 11px; 
+    border-radius: 6px;
+    color: white; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+.btn-edit { background: #4CAF50; } 
+.btn-delete { background: #f44336; }
+
+.btn-row { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 8px;
+}
+.avg-label{ text-align:center; font-weight:bold; }
+.input-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  position: relative; /* ドロップダウンをここ基準にする */
+}
+
+
+.input-group input{ width:120px; text-align:right; padding:4px; }
+.time-group input{ width:50px; }
+.settings-card{ background:white; border-radius:12px; padding:8px 12px; margin-bottom:18px; box-shadow:0 1px 2px rgba(0,0,0,0.05); }
+.form-row{ display:flex; align-items:center; justify-content:space-between; margin:8px 0; font-size:15px; }
+.form-row label{ width:200px; flex:none; text-align:left; font-size:14px; color:#333; }
+.month-select-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.month-select-controls{ flex:1; display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+.month-select-controls input[type="month"]{
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 0 8px;
+    height: 32px;
+    background: #fff;
+}
+.month-select-controls button {
+    width: 35px;
+    height: 30px;
+    padding: 0;
+    margin: 0 2px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center; 
+    justify-content: center;
+    vertical-align: middle;
+}
+.monthly-header{ display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+.danger-btn{ background:#FFC107; color:#000; border-radius:6px; padding:6px 12px; font-size:13px; width:auto; margin-bottom:26px; }
+.daily-review-panel{ background:#ffffff; border-radius:12px; padding:16px 18px 18px; margin-top:18px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+.panel-title{ font-size:16px; font-weight:700; margin-bottom:14px; color:#333; }
+
+.input-group-date {
+  display: flex;
+  align-items: center;
+}
+
+#date {
+  flex: 1; /* 入力欄は残り幅を使う */
+}
+
+#weekday-in {
+  
+}
+
+.date-colored {
+  font-weight: bold;
+}
+
+.week-sun { color: #ff0000; }  /* 日曜・祝日 */
+.week-sat { color: #0066ff; }  /* 土曜 */
+.app-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; width:100%; }
+.app-name { flex: 1.8; border: 1px solid #ddd; border-radius: 6px; padding: 8px; font-size: 15px; width: 100%; }
+.unit-input-group { display: flex; align-items: center; background: #eee; border-radius: 6px; padding: 0 6px; flex: 1; }
+.unit-input-group input { width: 100%; border: none; background: transparent; text-align: right; padding: 8px 2px; font-size: 15px; outline: none; }
+.unit-text { font-size: 11px; color: #666; white-space: nowrap; }
+.week-sat { color: #0066ff; } .week-sun, .week-holiday { color: #ff0000; }
+
+#page-home .section, #page-home .daily-review-panel, #page-home .settings-card {
+    background: #ffffff;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+#page-home h3 {
+    font-size: 15px;
+    color: #1a1a1a;
+    border-left: 4px solid #4CAF50;
+    padding-left: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+#page-home input[type="number"], 
+#page-home input[type="text"], 
+#page-home input[type="date"] {
+    height: 38px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 14px;
+    transition: all 0.2s;
+    background: #fdfdfd;
+}
+
+#page-home input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(74, 175, 80, 0.1);
+    outline: none;
+}
+
+
+.app-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+
+.unit-input-group {
+    height: 38px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+
+.form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 45px;
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.form-row label {
+    font-weight: 500;
+    color: #555;
+    font-size: 13px;
+}
+
+
+.result-row {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.result-row:last-of-type { border-bottom: none; }
+
+.result-row span:last-child {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+
+#page-home .daily-review-panel button {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    height: 48px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+
+.screenshot-card {
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    border-radius: 24px;
+    padding: 30px 25px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.progress-period-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 15px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+}
+
+.main-stat-container {
+    margin-bottom: 30px;
+}
+
+.main-stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.main-stat-value {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.sub-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* カードの高さを揃える（ここが最重要） */
+.sub-stat-item {
+    background: rgba(255,255,255,0.08);
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* ← 上下バランスを均等に */
+    align-items: center;
+    text-align: center;
+
+    height: 65px;  /* ← ここで高さを固定する（調整OK） */
+}
+
+/* ラベルの高さも揃えるとさらに安定 */
+.sub-stat-item .stat-label {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sub-stat-amount {
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+
+    line-height: 1.0;   /* ← Safari の数字のズレを補正 */
+    margin-top: 4px;    /* ← 必要なら微調整 */
+}
+
+.time-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: auto;          /* ← 中身の幅だけにする */
+    justify-content: flex-start;
+}
+
+.simple-input {
+    height: 38px;
+    width: 40px;        /* ← 時間と分の横幅を揃える */
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    text-align: right;
+    margin-left: -2px;
+}
+
+.unit-text {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap; /* ← 改行しない */
+}
+
+/* number入力の上下ボタンを消す */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+.limit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;  /* ← これが最重要 */
+  gap: 6px;
+}
+
+.limit-box {
+  flex: 1; /* ← 他の入力欄と同じ幅にする */
+  position: relative;
+}
+
+#limit-time {
+  width: 100%;
+  height: 38px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 15px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.limit-unit {
+  width: 1.15em; /* 円と同じ幅 */
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.limit-dropdown {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: none;
+  z-index: 100;
+}
+
+
+.limit-dropdown div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.limit-dropdown div:hover {
+  background: #f0f0f0;
+}
+
+.month-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* ← iPhoneで滑らかスクロール */
+}
+
+@media (max-width: 600px) {
+  body {
+    max-width: 100% !important;
+    margin: 0;
+    padding: 16px;
+  }
+}
+/* ▼ タブバーと被らないように下余白を調整 ▼ */
+
+/* 管理タブ：少し余白 */
+#page-home {
+    padding-bottom: 60px;
+}
+
+/* 月タブ：管理の倍くらい余白 */
+#page-month {
+    padding-bottom: 80px;
+}
+
+/* レポートタブ：月タブと同じくらい余白 */
+#page-report {
+    padding-bottom: 80px;
+}
+
+/* ▼ レポートタブの左右の白枠を減らす（カードを広げる） ▼ */
+#page-report .report-card {
+    width: 80%;
+    max-width: 360px; /* 画面に合わせて自然に広がる */
+    margin: 0 auto;
+}
+
+#reportMonthInput {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #fff !important;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 6px 10px;
+    width: 100%;
+    text-align: left !important;
+    color: #333;
+}
+</style>
+</head>
+
+<body>
+<h1 style="text-align:center;">👨‍👩‍👧 親用スマホ管理/朔也</h1>
+<p style="text-align:center; color:#666;">使用時間 × 小遣い連動システム</p>
+
+<div id="page-home" class="page active">
+  <div class="section">
+    <h3>📅 記録日の選択</h3>
+    <div class="input-group-date">
+  <input type="date" id="date">
+  <span id="weekday-in"></span>
+</div>
+  </div>
+
+  <div class="section">
+    <h3>📱 アプリ別使用時間</h3>
+    <div id="appList"></div>
+    <button onclick="addApp()" style="background: #f0f7ff; color: #2196F3; border: 1px dashed #2196F3; padding: 8px; font-size: 13px; margin-top: 5px;">
+        ＋ アプリを追加
+    </button>
+  </div>
+
+  <div class="daily-review-panel">
+    <h3>💡 本日の分析</h3>
+    <div class="result-row"><span>合計使用時間</span><span id="total">0時間00分</span></div>
+    <div class="result-row"><span>がんばり時間</span><span id="diff">0時間00分</span></div>
+    <div class="result-row"><span style="color:#2196F3;">参考ボーナス</span><span id="money">0 円</span></div>
+    <button onclick="saveData()">データを保存する</button>
+  </div>
+
+  <div class="settings-card">
+    <h3 style="border-left-color: #9C27B0;">⚙️ 基本ルール設定</h3>
+    <div class="form-row">
+  <label>使用上限 / 日</label>
+
+  <!-- 他の欄と同じ構造にする -->
+  <div class="input-group" style="width:120px;">
+
+    <!-- 入力ボックス（プリセット選択） -->
+    <input type="text" id="limit-time" readonly placeholder="選択" style="width:120px;">
+
+    <!-- 単位（円と同じ位置に揃う） -->
+    <span class="limit-unit">/日</span>
+
+    <!-- プリセット一覧（位置は絶対配置） -->
+    <div class="limit-dropdown" id="limit-dropdown">
+      <div data-value="60">1時間</div>
+      <div data-value="90">1時間30分</div>
+      <div data-value="120">2時間</div>
+      <div data-value="150">2時間30分</div>
+      <div data-value="180">3時間</div>
+      <div data-value="210">3時間30分</div>
+      <div data-value="240">4時間</div>
+      <div data-value="270">4時間30分</div>
+      <div data-value="300">5時間</div>
+    </div>
+
+  </div>
+</div>
+    <div class="form-row">
+      <label>ベース小遣い</label>
+      <div class="input-group" style="width:100px;"><input type="number" id="baseMoney"><span>円</span></div>
+    </div>
+    <div class="form-row">
+      <label>ボーナス上限</label>
+      <div class="input-group" style="width:100px;"><input type="number" id="bonusCap"><span>円</span></div>
+    </div>
+    <div class="form-row">
+      <label>＋報酬 / 分</label>
+      <div class="input-group" style="width:100px;"><input type="number" id="plusRate"><span>円</span></div>
+    </div>
+    <div class="form-row">
+      <label>ー減額 / 分</label>
+      <div class="input-group" style="width:100px;"><input type="number" id="minusRate"><span>円</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="page-month" class="page">
+  <div class="section month-select-row">
+    <h3>表示月</h3>
+    <div class="month-select-controls">
+      <button onclick="changeMonth(-1)">◀</button>
+      <input type="month" id="targetMonth" onchange="renderMonthly()">
+      <button onclick="changeMonth(1)">▶</button>
+    </div>
+  </div>
+
+  <div id="monthlyResult" class="section">
+    <div class="monthly-header">
+      <h3>月間履歴</h3>
+      <button class="danger-btn" onclick="deleteMonthHistory()">この月の履歴を全削除</button>
+    </div>
+<div class="month-table-wrapper">
+<table class="month-table">
+      <thead>
+        <tr>
+          <th style="width:60px;">日付</th>
+          <th style="width:60px;">上限</th>
+          <th>使用（差分）</th>
+          <th style="width:60px;">金額</th>
+          <th style="width:85px;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="monthlyTable"></tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td class="avg-label">平均</td>
+          <td id="monthAvgLimit">-</td>
+          <td id="monthAvgUse"></td>
+          <td id="monthMoneyTotal"></td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+  <div class="section">
+    <div class="summary-row"><span class="label">ベース小遣い</span><span class="value"><span id="monthBase">0</span> 円</span></div>
+    <div class="summary-row"><span class="label">表示月適用ボーナス</span><span class="value"><span id="monthBonusMaxLabel"></span><span id="monthBonusApplied">0</span> 円</span></div>
+    <div style="font-size:13px;margin-left:8px;">※がんばり時間&nbsp;&nbsp;<span id="monthEffortTime">0時間0分</span></div>
+    <div class="summary-row"><span class="label">月のボーナス上限</span><span class="value"><span id="monthBonusCap">0</span> 円</span></div>
+    <div class="summary-row" style="font-size:22px;font-weight:bold;margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">
+    <span class="label">翌月支給小遣い</span>
+    <span class="value"><span id="monthFinal">0</span> 円</span>
+</div>
+  </div>
+</div>
+<div id="page-report" class="page">
+  <div style="background:linear-gradient(135deg,#4CAF50,#2196F3); padding:30px 0; display:flex; justify-content:center;">
+    <div class="report-card" style="background:white; border-radius:30px; padding:25px; box-shadow:0 20px 40px rgba(0,0,0,0.2); text-align:center;">
+      <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">表示月</label><input type="month" id="reportMonthInput" style="width:100%;padding:6px;border-radius:8px;border:1px solid #ddd;"></div>
+      <div id="reportMonth" style="font-size:14px;color:#777;"></div>
+      <div style="font-size:19px;font-weight:bold;margin:10px 0;">📱 今月のスマホ管理レポート</div>
+      <div style="font-size:12px;color:#888;letter-spacing:1px;margin-bottom:-16px;">1日平均使用時間</div>
+      <div id="reportAvgUse" style="font-size:42px;font-weight:bold;margin:20px 0;">0時間0分</div>
+      <div id="reportFinal" style="font-size:18px;color:#222;margin-top:-10px;margin-bottom:14px;">翌月小遣い：0 円</div>
+      <div class="info">
+        <div class="row"><span>ベース小遣い</span><span class="money-right" id="reportBase">0 円</span></div>
+        <div class="row"><span>表示月適用ボーナス</span><span class="money-right" id="reportBonusApplied">0 円</span></div>
+        <div id="reportEffort"></div>
+        <div class="row"><span>月のボーナス上限</span><span class="money-right" id="reportCap">0 円</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="page-progress" class="page">
+    <div class="progress-container">
+        <input type="hidden" id="progStart">
+        <input type="hidden" id="progEnd">
+
+        <div id="progressCard" class="screenshot-card">
+            <div class="progress-period-badge">
+                📅 <span id="progPeriodDisplay">---</span>
+            </div>
+            
+            <div class="main-stat-container">
+                <div class="main-stat-label">1日平均の使用時間</div>
+                <div id="progAvgUse" class="main-stat-value">0<span style="font-size:20px;">h</span>00<span style="font-size:20px;">m</span></div>
+            </div>
+
+            <div class="sub-stats-grid">
+                <div class="sub-stat-item">
+                    <div class="stat-label" style="font-size:11px; opacity:0.7; margin-bottom:5px;">翌月暫定小遣い</div>
+                    <span id="progFinalMoney" class="sub-stat-amount" style="color: #4effca;">0 円</span>
+                </div>
+                <div class="sub-stat-item">
+                    <div class="stat-label" style="font-size:11px; opacity:0.7; margin-bottom:5px;">平均がんばり時間</div>
+                    <span id="progEffort" class="sub-stat-amount">0h00m</span>
+                </div>
+            </div>
+
+            <div style="margin-top:30px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); font-size:12px; opacity:0.6;">
+                PRODUCED BY SMARTPHONE MGMT SYSTEM
+            </div>
+        </div>
+        
+        <div style="margin-top:20px; padding:0 10px;">
+            <button onclick="renderProgress()" style="background:#607d8b; font-size:13px; padding:8px;">🔄 最新の情報に更新</button>
+        </div>
+    </div>
+</div>
+        
+<div class="tabbar">
+  <button onclick="switchTab('home')" id="tab-home" class="active">🏠 管理</button>
+  <button onclick="switchTab('month')" id="tab-month">📅 月</button>
+  <button onclick="switchTab('progress')" id="tab-progress">✨ 経過</button>
+  <button onclick="switchTab('report')" id="tab-report">📸 レポート</button>
+</div>
+
+<div id="toast" class="toast">保存しました！</div>
+
+<script>
+// 外部APIを使わず、内部データに変更
+let holidayMap = {
+    // 2026年
+    "2026-01-01": true, "2026-01-12": true, "2026-02-11": true,
+    "2026-02-23": true, "2026-03-20": true, "2026-04-29": true,
+    "2026-05-03": true, "2026-05-04": true, "2026-05-05": true,
+    "2026-07-20": true, "2026-08-11": true, "2026-09-21": true,
+    "2026-09-22": true, "2026-09-23": true, "2026-10-12": true,
+    "2026-11-03": true, "2026-11-23": true,
+
+    // 2027年
+    "2027-01-01": true, "2027-01-11": true, "2027-02-11": true,
+    "2027-02-23": true, "2027-03-21": true, "2027-04-29": true,
+    "2027-05-03": true, "2027-05-04": true, "2027-05-05": true,
+    "2027-07-19": true, "2027-08-11": true, "2027-09-20": true,
+    "2027-09-23": true, "2027-10-11": true, "2027-11-03": true,
+    "2027-11-23": true,
+
+    // 2028年
+    "2028-01-01": true, "2028-01-10": true, "2028-02-11": true,
+    "2028-02-23": true, "2028-03-20": true, "2028-04-29": true,
+    "2028-05-03": true, "2028-05-04": true, "2028-05-05": true,
+    "2028-07-17": true, "2028-08-11": true, "2028-09-18": true,
+    "2028-09-22": true, "2028-10-09": true, "2028-11-03": true,
+    "2028-11-23": true,
+
+    // 2029年
+    "2029-01-01": true, "2029-01-08": true, "2029-02-11": true,
+    "2029-02-12": true, // 振替休日
+    "2029-02-23": true, "2029-03-20": true, "2029-04-29": true,
+    "2029-04-30": true, // 振替休日
+    "2029-05-03": true, "2029-05-04": true, "2029-05-05": true,
+    "2029-07-16": true, "2029-08-11": true, "2029-09-17": true,
+    "2029-09-23": true, "2029-09-24": true, // 振替休日
+    "2029-10-08": true, "2029-11-03": true, "2029-11-23": true
+};
+const storageKey = "dailyData";
+
+window.addEventListener("load", () => {
+    loadSettings();
+    setTodayDate();
+    loadDailyData();
+    loadHolidays();
+});
+
+function switchTab(name){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".tabbar button").forEach(b=>b.classList.remove("active"));
+    document.getElementById("page-"+name).classList.add("active");
+    document.getElementById("tab-"+name).classList.add("active");
+    if(name === "month") renderMonthly();
+    if(name === "report") loadReportInline();
+}
+
+function addApp(name="", time=""){
+    const container = document.getElementById("appList");
+    const h = time !== "" ? Math.floor(time/60) : "";
+    const m = time !== "" ? time%60 : "";
+    const row = document.createElement("div");
+    row.className="app-row";
+    row.innerHTML = `
+        <input type="text" class="app-name" placeholder="アプリ名" value="${name}">
+
+        <div class="time-cell">
+            <input type="number" class="app-hour simple-input" placeholder="0" value="${h}" oninput="calculate()">
+            <span class="unit-text">時間</span>
+        </div>
+
+        <div class="time-cell">
+            <input type="number" class="app-min simple-input" placeholder="0" value="${m}" oninput="calculate()">
+            <span class="unit-text">分</span>
+        </div>
+
+        <button class="delete-btn" onclick="this.parentElement.remove(); calculate();">×</button>
+    `;
+    container.appendChild(row);
+}
+
+function calculate(){
+    let total = 0;
+    document.querySelectorAll(".app-row").forEach(row=>{
+        total += (Number(row.querySelector(".app-hour").value)||0)*60 
+               + (Number(row.querySelector(".app-min").value)||0);
+    });
+
+    // ★ 新しい使用上限の取得（limit-time から）
+    const limitText = document.getElementById("limit-time").value;
+    let limit = 0;
+    if (limitText.includes("時間")) {
+        const h = Number(limitText.split("時間")[0]) || 0;
+        const m = limitText.includes("分") ? Number(limitText.split("時間")[1].replace("分","")) : 0;
+        limit = h * 60 + m;
+    }
+
+    const diff = limit - total;
+    const plusRate = Number(document.getElementById("plusRate").value)||0;
+    const minusRate = Number(document.getElementById("minusRate").value)||0;
+    
+    document.getElementById("total").innerText = formatMinutes(total);
+    document.getElementById("diff").innerText = (diff >= 0 ? "+" : "") + formatMinutes(diff);
+    document.getElementById("diff").className = diff >= 0 ? "plus" : "minus";
+    
+    const money = diff >= 0 ? diff * plusRate : diff * minusRate;
+    document.getElementById("money").innerText = money + " 円";
+
+    return { total, diff, money, limit };
+}
+function saveData(){
+    const date=document.getElementById("date").value;
+    if(!date){ alert("日付を選んでください"); return;}
+    const calc = calculate();
+    let allData=JSON.parse(localStorage.getItem(storageKey)||"{}");
+    let apps = [];
+    document.querySelectorAll(".app-row").forEach(row=>{
+        let name = row.querySelector(".app-name").value;
+        let h = Number(row.querySelector(".app-hour").value)||0;
+        let m = Number(row.querySelector(".app-min").value)||0;
+        if(name || (h*60+m) > 0) apps.push({name, time: h*60+m});
+    });
+    allData[date] = {
+        limit: calc.limit, use: calc.total, diff: calc.diff, money: calc.money, apps: apps
+    };
+    localStorage.setItem(storageKey,JSON.stringify(allData));
+    saveSettings();
+    showToast();
+}
+
+function saveSettings(){
+    localStorage.setItem("baseMoney", document.getElementById("baseMoney").value);
+    localStorage.setItem("bonusCap", document.getElementById("bonusCap").value);
+    localStorage.setItem("plusRate", document.getElementById("plusRate").value);
+    localStorage.setItem("minusRate", document.getElementById("minusRate").value);
+    localStorage.setItem("limitTime", document.getElementById("limit-time").value);
+}
+
+function loadSettings(){
+    document.getElementById("baseMoney").value = localStorage.getItem("baseMoney") || 1000;
+    document.getElementById("bonusCap").value = localStorage.getItem("bonusCap") || 500;
+    document.getElementById("plusRate").value = localStorage.getItem("plusRate") || 1;
+    document.getElementById("minusRate").value = localStorage.getItem("minusRate") || 5;
+
+    const savedLimit = localStorage.getItem("limitTime");
+    if (savedLimit) {
+        document.getElementById("limit-time").value = savedLimit;
+    }
+}
+
+function loadDailyData(){
+    const date = document.getElementById("date").value;
+    let allData = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    const container = document.getElementById("appList");
+    container.innerHTML = "";
+    if(allData[date] && allData[date].apps){
+        allData[date].apps.forEach(app => addApp(app.name, app.time));
+    } else {
+        addApp();
+    }
+    calculate();
+    updateWeekdayIn();
+}
+
+function renderMonthly(){
+    const month = document.getElementById("targetMonth").value;
+    let allData = JSON.parse(localStorage.getItem(storageKey)||"{}");
+    const tbody = document.getElementById("monthlyTable");
+    tbody.innerHTML = "";
+    let sumUse = 0, sumLimit = 0, sumMoney = 0, days = 0;
+
+    Object.keys(allData).sort().forEach(date => {
+        if(date.startsWith(month)){
+            const d = allData[date];
+            days++; sumUse += d.use; sumLimit += d.limit; sumMoney += d.money;
+
+            tbody.innerHTML += `<tr>
+                <td>${formatDateWithWeekday(date)}</td>
+                <td>${formatHM(d.limit)}</td>
+                <td>${formatHM(d.use)} <span style="color:${d.diff < 0 ? 'red' : 'green'}; font-size:11px;">(${d.diff >= 0 ? '+' : ''}${formatHM(d.diff)})</span></td>
+                <td class="${d.money > 0 ? 'plus' : (d.money < 0 ? 'minus' : 'zero')}" style="font-weight:bold;">${d.money}円</td>
+<td style="vertical-align: middle; padding: 0;">
+    <div style="display: flex; justify-content: center; align-items: center; gap: 5px; height: 42px;">
+        <button class="btn-edit" onclick="editRecord('${date}')" style="width: 30px; height: 30px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">修</button>
+        <button class="btn-delete" onclick="deleteRecord('${date}')" style="width: 30px; height: 30px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">削</button>
+    </div>
+</td>
+            </tr>`;
+        }
+    });
+
+    const base = Number(localStorage.getItem("baseMoney") || 0);
+    const cap = Number(localStorage.getItem("bonusCap") || 0);
+    const avgMoney = days ? Math.round(sumMoney / days) : 0;
+    let applied = avgMoney;
+    if(cap > 0 && avgMoney >= cap) applied = cap;
+
+    const avgUse = days ? Math.round(sumUse / days) : 0;
+    const totalDiff = sumLimit - sumUse;
+    const avgDiff = days ? Math.round(totalDiff / days) : 0;
+
+    const effortEl = document.getElementById("monthEffortTime");
+    const totalEffort = sumLimit - sumUse;
+
+    effortEl.innerHTML = `
+        ${formatMinutes(avgDiff)} 
+        <span style="font-size:12px; font-weight:normal; color:#222; margin-left:5px;">
+            <br>&nbsp;&nbsp;(1日の上限使用時間－月の1日平均使用時間)
+        </span>`;
+    effortEl.style.color = avgDiff >= 0 ? "green" : "red";
+    effortEl.style.fontWeight = "bold";
+
+    const appliedEl = document.getElementById("monthBonusApplied");
+    appliedEl.innerText = applied;
+    appliedEl.className = applied > 0 ? "plus" : (applied < 0 ? "minus" : "zero");
+    appliedEl.style.fontWeight = "bold";
+
+    document.getElementById("monthAvgLimit").innerHTML = days ? formatHM(Math.round(sumLimit/days)) : "-";
+    document.getElementById("monthAvgUse").innerHTML = days ? 
+        `${formatHM(avgUse)} <span style="color:${avgDiff < 0 ? 'red' : 'green'}; font-size:11px;">(${avgDiff >= 0 ? '+' : ''}${formatHM(avgDiff)})</span>` : "";
+
+    const moneyEl = document.getElementById("monthMoneyTotal");
+    moneyEl.innerText = avgMoney + "円";
+    moneyEl.className = avgMoney > 0 ? "plus" : (avgMoney < 0 ? "minus" : "zero");
+    moneyEl.style.fontWeight = "bold";
+
+    document.getElementById("monthBonusCap").innerText = cap;
+    document.getElementById("monthBonusMaxLabel").innerHTML = (cap > 0 && avgMoney >= cap) ? `<span style="color:#DAA520; font-size:10px;">（上限達成！）</span>` : "";
+    document.getElementById("monthBase").innerText = base;
+    document.getElementById("monthFinal").innerText = base + applied;
+
+}
+
+function loadReportInline(){
+    const month = document.getElementById("reportMonthInput").value;
+    const monthDisplay = document.getElementById("reportMonth");
+    if(monthDisplay) monthDisplay.innerText = month;
+
+    let allData = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    let sumUse = 0, sumLimit = 0, sumMoney = 0, days = 0;
+    Object.keys(allData).forEach(date => {
+        if(date.startsWith(month)){
+            const d = allData[date];
+            days++; sumUse += d.use; sumLimit += d.limit; sumMoney += d.money;
+        }
+    });
+    const avgUse = days ? Math.round(sumUse / days) : 0;
+    const avgMoney = days ? Math.round(sumMoney / days) : 0;
+    const base = Number(localStorage.getItem("baseMoney") || 0);
+    const cap = Number(localStorage.getItem("bonusCap") || 0);
+    let applied = avgMoney;
+    if(cap > 0 && avgMoney >= cap) applied = cap;
+
+    const avgUseEl = document.getElementById("reportAvgUse");
+    if(avgUseEl) avgUseEl.innerHTML = formatHMReport(avgUse);
+    
+    const finalEl = document.getElementById("reportFinal");
+    if(finalEl) finalEl.innerText = `翌月小遣い：${base + applied} 円`;
+    
+    const baseEl = document.getElementById("reportBase");
+    if(baseEl) baseEl.innerText = base + " 円";
+    
+    const capEl = document.getElementById("reportCap");
+    if(capEl) capEl.innerText = cap + " 円";
+
+    const repAppliedEl = document.getElementById("reportBonusApplied");
+    if(repAppliedEl) {
+        const capLabel = (cap > 0 && avgMoney >= cap) ? '<span style="color:#ff9800; font-weight:bold; font-size:13px; margin-right:5px;">上限達成！</span>' : '';
+        repAppliedEl.innerHTML = capLabel + applied + " 円";
+        repAppliedEl.className = "money-right " + (applied > 0 ? "plus" : (applied < 0 ? "minus" : "zero"));
+    }
+
+    const effortMin = days ? Math.round((sumLimit - sumUse) / days) : 0;
+    const effortColor = effortMin >= 0 ? "green" : "red";
+    const effortEl = document.getElementById("reportEffort");
+
+    if(effortEl) {
+        effortEl.innerHTML = `
+            <div class="effort-block">
+                ※がんばり時間&nbsp;&nbsp;
+                <span style="color:${effortColor}; font-weight:bold;"><br>&nbsp;&nbsp;${formatHM(effortMin)}</span>&nbsp;&nbsp;${effortMin >= 0 ? '<span style="color:green; font-weight:bold;"><いい傾向です！></span>' : '<span style="color:red; font-weight:bold;"><もう少し意識しよう></span>'}
+                <br><span style="font-size:11px; color:#333; font-weight:normal;">&nbsp;&nbsp;(1日の上限使用時間－月の1日平均使用時間)</span><br>
+            </div>`;
+    }
+}
+function editRecord(date){
+    document.getElementById("date").value = date;
+    loadDailyData();
+    switchTab('home');
+}
+
+function deleteRecord(date){
+    if(confirm(date + " を削除しますか？")){
+        let allData = JSON.parse(localStorage.getItem(storageKey)||"{}");
+        delete allData[date];
+        localStorage.setItem(storageKey, JSON.stringify(allData));
+        renderMonthly();
+    }
+}
+
+function deleteMonthHistory(){
+    const month = document.getElementById("targetMonth").value;
+    if(confirm(month + " の履歴を全削除しますか？")){
+        let allData = JSON.parse(localStorage.getItem(storageKey)||"{}");
+        Object.keys(allData).forEach(d => { if(d.startsWith(month)) delete allData[d]; });
+        localStorage.setItem(storageKey, JSON.stringify(allData));
+        renderMonthly();
+    }
+}
+
+function changeMonth(offset){
+    const el = document.getElementById("targetMonth");
+    const [y, m] = el.value.split("-").map(Number);
+    const d = new Date(y, m - 1 + offset, 1);
+    el.value = `${d.getFullYear()}-${("0"+(d.getMonth()+1)).slice(-2)}`;
+    renderMonthly();
+}
+
+function loadHolidays(){
+    // 何もしない（内部 holidayMap を使用）
+    updateWeekdayIn();
+}
+
+function updateWeekdayIn() {
+    const val = document.getElementById("date").value;
+    const dateInput = document.getElementById("date");
+
+    if (!val) {
+        dateInput.className = "";
+        return;
+    }
+
+    // Safari 対応：手動で分解
+    const [y, m, d] = val.split("-");
+    const dateObj = new Date(y, m - 1, d);
+
+    // 曜日取得
+    const day = dateObj.getDay();
+
+    // まず色クラスを全部消す
+    dateInput.classList.remove("week-sun", "week-sat", "date-colored");
+
+    // 色付け
+    if (day === 0 || (holidayMap && holidayMap[val])) {
+        dateInput.classList.add("week-sun", "date-colored");
+    } else if (day === 6) {
+        dateInput.classList.add("week-sat", "date-colored");
+    }
+}
+
+function setTodayDate(){
+    const d = new Date();
+    const y = d.getFullYear(), m = ("0"+(d.getMonth()+1)).slice(-2), day = ("0"+d.getDate()).slice(-2);
+    document.getElementById("date").value = `${y}-${m}-${day}`;
+    document.getElementById("targetMonth").value = `${y}-${m}`;
+    document.getElementById("reportMonthInput").value = `${y}-${m}`;
+}
+
+function formatMinutes(min){
+    const h = Math.floor(Math.abs(min)/60);
+    const m = String(Math.abs(min)%60).padStart(2, '0'); 
+    return `${min<0?'-':''}${h}時間${m}分`;
+}
+
+function formatHM(min){
+    const h = Math.floor(Math.abs(min)/60);
+    const m = String(Math.abs(min)%60).padStart(2, '0');
+    return `${min<0?'-':''}${h}<span style="font-size:11px;">時間</span>${m}<span style="font-size:11px;">分</span>`;
+}
+
+function formatHMReport(min){
+    const h = Math.floor(min/60);
+    const m = String(min%60).padStart(2, '0');
+    return `${h}<span style="font-size:24px;">時間</span>${m}<span style="font-size:24px;">分</span>`;
+}
+
+function formatDateWithWeekday(date){
+    const d = new Date(date), w = ["日","月","火","水","木","金","土"][d.getDay()];
+    let color = (d.getDay() === 0 || (holidayMap && holidayMap[date])) ? "red" : (d.getDay() === 6 ? "blue" : "black");
+    return `${date.split("-")[2]}日(<span style="color:${color}">${w}</span>)`;
+}
+
+function showToast(msg="保存しました！"){
+    const t = document.getElementById("toast");
+    t.innerText = msg; t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"), 2000);
+}
+
+document.getElementById("date").addEventListener("change", loadDailyData);
+document.getElementById("reportMonthInput").addEventListener("change", loadReportInline);
+
+function switchTab(name){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".tabbar button").forEach(b=>b.classList.remove("active"));
+    document.getElementById("page-"+name).classList.add("active");
+    document.getElementById("tab-"+name).classList.add("active");
+    if(name === "month") renderMonthly();
+    if(name === "report") loadReportInline();
+    if(name === "progress") renderProgress();
+}
+
+function renderProgress() {
+    let allData = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    const dates = Object.keys(allData).sort();
+    if (dates.length === 0) return;
+
+    const now = new Date();
+    const currentMonthPrefix = `${now.getFullYear()}-${("0" + (now.getMonth() + 1)).slice(-2)}`;
+    
+    const currentMonthDates = dates.filter(d => d.startsWith(currentMonthPrefix));
+    if (currentMonthDates.length === 0) return;
+
+    const start = currentMonthDates[0];
+    const end = currentMonthDates[currentMonthDates.length - 1];
+
+    const fmt = (d) => d.split("-")[1] + "/" + d.split("-")[2];
+    document.getElementById("progPeriodDisplay").innerText = `${fmt(start)} ～ ${fmt(end)}`;
+
+    let sumUse = 0, sumLimit = 0, sumMoney = 0, days = 0;
+    currentMonthDates.forEach(date => {
+        const d = allData[date];
+        days++;
+        sumUse += d.use;
+        sumLimit += d.limit;
+        sumMoney += d.money;
+    });
+
+    const avgUse = days ? Math.round(sumUse / days) : 0;
+    const effortAvg = days ? Math.round((sumLimit - sumUse) / days) : 0;
+    const moneyAvg = days ? Math.round(sumMoney / days) : 0;
+    
+    const base = Number(localStorage.getItem("baseMoney") || 0);
+    const cap = Number(localStorage.getItem("bonusCap") || 0);
+    const appliedBonus = (cap > 0 && moneyAvg >= cap) ? cap : moneyAvg;
+
+    const h = Math.floor(avgUse / 60);
+    const m = String(avgUse % 60).padStart(2, '0');
+    document.getElementById("progAvgUse").innerHTML = `${h}<span style="font-size:24px;">h</span>${m}<span style="font-size:24px;">m</span>`;
+
+    document.getElementById("progFinalMoney").innerText = (base + appliedBonus).toLocaleString() + " 円";
+
+    const eh = Math.floor(Math.abs(effortAvg) / 60);
+    const em = String(Math.abs(effortAvg) % 60).padStart(2, '0');
+    const effortEl = document.getElementById("progEffort");
+    effortEl.innerText = `${effortAvg < 0 ? '-' : ''}${eh}h${em}m`;
+    effortEl.style.color = effortAvg >= 0 ? "#4effca" : "#ff6b6b";
+}
+
+if(name === "progress") renderProgress();
+
+const limitInput = document.getElementById("limit-time");
+const limitDropdown = document.getElementById("limit-dropdown");
+
+limitInput.addEventListener("click", () => {
+  limitDropdown.style.display = "block";
+});
+
+limitDropdown.querySelectorAll("div").forEach(item => {
+  item.addEventListener("click", () => {
+    const minutes = item.dataset.value;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+
+    limitInput.value = m === 0 ? `${h}時間` : `${h}時間${m}分`;
+
+    limitDropdown.style.display = "none";
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!limitInput.contains(e.target) && !limitDropdown.contains(e.target)) {
+    limitDropdown.style.display = "none";
+  }
+});
+</script>
+</body>
+</html>
