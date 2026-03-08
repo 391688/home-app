@@ -480,7 +480,18 @@ input[type="number"] {
 #refreshBtn:hover {
   opacity: 1;
 }
-   
+
+#copyDataBtn {
+  position: fixed;
+  bottom: 100px; /* ← タブより上に出す */
+  right: 20px;
+  padding: 10px 14px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 8px;
+  z-index: 9999; /* ← これが最重要 */
+}  
+    
 </style>
 </head>
 
@@ -1156,17 +1167,18 @@ document.addEventListener("click", (e) => {
 
 
 function copyData() {
-  const data = localStorage.getItem('storageKey');
+  const data = localStorage.getItem('dailyData'); // ← あなたのキー名
   navigator.clipboard.writeText(data);
-  alert('データをコピーしました！');
+  alert('コピーしました！');
 }
     
 </script>
 
-<button onclick="copyData()">データをコピー</button>
+<button id="copyDataBtn" onclick="copyData()">コピー</button>
     
 </body>
 
 </html>
+
 
 
