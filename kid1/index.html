@@ -1156,7 +1156,6 @@ document.addEventListener("click", (e) => {
 <textarea id="importBox" placeholder="ここに貼り付け"></textarea>
 <button onclick="importData()">インポート</button>
 
-<script>
 function importData() {
   const text = document.getElementById('importBox').value;
   localStorage.setItem('storageKey', text);
