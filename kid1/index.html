@@ -905,9 +905,9 @@ function renderMonthly(){
 
     const base = Number(localStorage.getItem("baseMoney") || 0);
     const cap = Number(localStorage.getItem("bonusCap") || 0);
-    const avgMoney = days ? Math.round(sumMoney / days) : 0;
-    let applied = avgMoney;
-    if(cap > 0 && avgMoney >= cap) applied = cap;
+    const totalMoney = sumMoney;  // ← 合計方式に変更
+    let applied = totalMoney;
+    if(cap > 0 && totalMoney >= cap) applied = cap;
 
     const avgUse = days ? Math.round(sumUse / days) : 0;
     const totalDiff = sumLimit - sumUse;
@@ -934,8 +934,8 @@ function renderMonthly(){
         `${formatHM(avgUse)} <span style="color:${avgDiff < 0 ? 'red' : 'green'}; font-size:11px;">(${avgDiff >= 0 ? '+' : ''}${formatHM(avgDiff)})</span>` : "";
 
     const moneyEl = document.getElementById("monthMoneyTotal");
-    moneyEl.innerText = avgMoney + "円";
-    moneyEl.className = avgMoney > 0 ? "plus" : (avgMoney < 0 ? "minus" : "zero");
+    moneyEl.innerText = totalMoney + "円";
+    moneyEl.className = totalMoney > 0 ? "plus" : (totalMoney < 0 ? "minus" : "zero");
     moneyEl.style.fontWeight = "bold";
 
     document.getElementById("monthBonusCap").innerText = cap;
