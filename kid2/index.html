@@ -482,8 +482,8 @@ input[type="number"] {
 }
 
 .backup-buttons {
-  margin-top: 40px;
-  margin-bottom: 80px;
+  margin-top: 40px;   /* ← 上タブに隠れない */
+  margin-bottom: 80px; /* ← 下タブに隠れない */
 }
 
 .export-btn {
@@ -507,7 +507,7 @@ input[type="number"] {
   font-size: 17px;
   border: none;
 }
-    
+
 </style>
 </head>
 
@@ -620,7 +620,7 @@ input[type="number"] {
       <tbody id="monthlyTable"></tbody>
       <tfoot>
         <tr class="total-row">
-          <td class="avg-label">平均</td>
+          <td class="avg-label">合計</td>
           <td id="monthAvgLimit">-</td>
           <td id="monthAvgUse"></td>
           <td id="monthMoneyTotal"></td>
@@ -909,19 +909,19 @@ function renderMonthly(){
     let applied = totalMoney;
     if(cap > 0 && totalMoney >= cap) applied = cap;
 
-    const avgUse = days ? Math.round(sumUse / days) : 0;
-    const totalDiff = sumLimit - sumUse;
-    const avgDiff = days ? Math.round(totalDiff / days) : 0;
+    const totalUse = sumUse;          // 月の合計使用時間
+    const totalLimit = sumLimit;      // 月の合計上限時間
+    const totalDiff = sumLimit - sumUse;  // 月の合計がんばり時間
 
     const effortEl = document.getElementById("monthEffortTime");
     const totalEffort = sumLimit - sumUse;
 
     effortEl.innerHTML = `
-        ${formatMinutes(avgDiff)} 
+        ${formatMinutes(totalDiff)}
         <span style="font-size:12px; font-weight:normal; color:#222; margin-left:5px;">
-            <br>&nbsp;&nbsp;(1日の上限使用時間－月の1日平均使用時間)
+            <br>&nbsp;&nbsp;(この月の合計がんばり時間)
         </span>`;
-    effortEl.style.color = avgDiff >= 0 ? "green" : "red";
+    effortEl.style.color = totalDiff >= 0 ? "green" : "red";
     effortEl.style.fontWeight = "bold";
 
     const appliedEl = document.getElementById("monthBonusApplied");
@@ -929,9 +929,9 @@ function renderMonthly(){
     appliedEl.className = applied > 0 ? "plus" : (applied < 0 ? "minus" : "zero");
     appliedEl.style.fontWeight = "bold";
 
-    document.getElementById("monthAvgLimit").innerHTML = days ? formatHM(Math.round(sumLimit/days)) : "-";
-    document.getElementById("monthAvgUse").innerHTML = days ? 
-        `${formatHM(avgUse)} <span style="color:${avgDiff < 0 ? 'red' : 'green'}; font-size:11px;">(${avgDiff >= 0 ? '+' : ''}${formatHM(avgDiff)})</span>` : "";
+    document.getElementById("monthAvgLimit").innerHTML = formatHM(totalLimit);
+    document.getElementById("monthAvgUse").innerHTML =
+        `${formatHM(totalUse)} <span style="color:${totalDiff < 0 ? 'red' : 'green'}; font-size:11px;">(${totalDiff >= 0 ? '+' : ''}${formatHM(totalDiff)})</span>`;
 
     const moneyEl = document.getElementById("monthMoneyTotal");
     moneyEl.innerText = totalMoney + "円";
@@ -1187,6 +1187,9 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// ------------------------------
+// バックアップをエクスポート
+// ------------------------------
 function exportBackup() {
   const data = localStorage.getItem("dailyData") || "{}";
 
@@ -1223,6 +1226,22 @@ function exportBackup() {
   }
 }
 
-</script>
+// ------------------------------
+// バックアップをインポート
+// ------------------------------
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    localStorage.setItem("dailyData", text);
+    alert("インポートされました！");
+  };
+  reader.readAsText(file);
+}
+
+</script>    
 </body>
 </html>
