@@ -1147,25 +1147,25 @@ function renderProgress() {
         sumMoney += d.money;
     });
 
-    const avgUse = days ? Math.round(sumUse / days) : 0;
-    const effortAvg = days ? Math.round((sumLimit - sumUse) / days) : 0;
-    const moneyAvg = days ? Math.round(sumMoney / days) : 0;
+    const totalUse = sumUse;
+    const totalDiff = sumLimit - sumUse;
+    const totalMoney = sumMoney;
     
     const base = Number(localStorage.getItem("baseMoney") || 0);
     const cap = Number(localStorage.getItem("bonusCap") || 0);
-    const appliedBonus = (cap > 0 && moneyAvg >= cap) ? cap : moneyAvg;
+    const appliedBonus = (cap > 0 && totalMoney >= cap) ? cap : totalMoney;
 
-    const h = Math.floor(avgUse / 60);
-    const m = String(avgUse % 60).padStart(2, '0');
+    const h = Math.floor(totalUse / 60);
+    const m = String(totalUse % 60).padStart(2, '0');
     document.getElementById("progAvgUse").innerHTML = `${h}<span style="font-size:24px;">h</span>${m}<span style="font-size:24px;">m</span>`;
 
     document.getElementById("progFinalMoney").innerText = (base + appliedBonus).toLocaleString() + " 円";
 
-    const eh = Math.floor(Math.abs(effortAvg) / 60);
-    const em = String(Math.abs(effortAvg) % 60).padStart(2, '0');
+    const eh = Math.floor(Math.abs(totalDiff) / 60);
+    const em = String(Math.abs(totalDiff) % 60).padStart(2, '0');
     const effortEl = document.getElementById("progEffort");
-    effortEl.innerText = `${effortAvg < 0 ? '-' : ''}${eh}h${em}m`;
-    effortEl.style.color = effortAvg >= 0 ? "#4effca" : "#ff6b6b";
+    effortEl.innerText = `${totalDiff < 0 ? '-' : ''}${eh}h${em}m`;
+    effortEl.style.color = totalDiff >= 0 ? "#4effca" : "#ff6b6b";
 }
 
 if(name === "progress") renderProgress();
