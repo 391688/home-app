@@ -958,15 +958,15 @@ function loadReportInline(){
             days++; sumUse += d.use; sumLimit += d.limit; sumMoney += d.money;
         }
     });
-    const avgUse = days ? Math.round(sumUse / days) : 0;
-    const avgMoney = days ? Math.round(sumMoney / days) : 0;
+    const totalUse = sumUse;
+    const totalMoney = sumMoney;
     const base = Number(localStorage.getItem("baseMoney") || 0);
     const cap = Number(localStorage.getItem("bonusCap") || 0);
-    let applied = avgMoney;
-    if(cap > 0 && avgMoney >= cap) applied = cap;
+    let applied = totalMoney;
+    if(cap > 0 && totalMoney >= cap) applied = cap;
 
     const avgUseEl = document.getElementById("reportAvgUse");
-    if(avgUseEl) avgUseEl.innerHTML = formatHMReport(avgUse);
+    if(avgUseEl) avgUseEl.innerHTML = formatHMReport(totalUse);
     
     const finalEl = document.getElementById("reportFinal");
     if(finalEl) finalEl.innerText = `翌月小遣い：${base + applied} 円`;
@@ -979,24 +979,25 @@ function loadReportInline(){
 
     const repAppliedEl = document.getElementById("reportBonusApplied");
     if(repAppliedEl) {
-        const capLabel = (cap > 0 && avgMoney >= cap) ? '<span style="color:#ff9800; font-weight:bold; font-size:13px; margin-right:5px;">上限達成！</span>' : '';
+        const capLabel = (cap > 0 && totalMoney >= cap) ? '<span style="color:#ff9800; font-weight:bold; font-size:13px; margin-right:5px;">上限達成！</span>' : '';
         repAppliedEl.innerHTML = capLabel + applied + " 円";
         repAppliedEl.className = "money-right " + (applied > 0 ? "plus" : (applied < 0 ? "minus" : "zero"));
     }
 
-    const effortMin = days ? Math.round((sumLimit - sumUse) / days) : 0;
-    const effortColor = effortMin >= 0 ? "green" : "red";
+    const totalDiff = sumLimit - sumUse;
+    const effortColor = totalDiff >= 0 ? "green" : "red";
     const effortEl = document.getElementById("reportEffort");
 
     if(effortEl) {
-        effortEl.innerHTML = `
-            <div class="effort-block">
-                ※がんばり時間&nbsp;&nbsp;
-                <span style="color:${effortColor}; font-weight:bold;"><br>&nbsp;&nbsp;${formatHM(effortMin)}</span>&nbsp;&nbsp;${effortMin >= 0 ? '<span style="color:green; font-weight:bold;"><いい傾向です！></span>' : '<span style="color:red; font-weight:bold;"><もう少し意識しよう></span>'}
-                <br><span style="font-size:11px; color:#333; font-weight:normal;">&nbsp;&nbsp;(1日の上限使用時間－月の1日平均使用時間)</span><br>
-            </div>`;
-    }
+    　　effortEl.innerHTML = `
+       　　 <div class="effort-block">
+   　　   ※がんばり時間&nbsp;&nbsp;
+    　　    　　 <span style="color:${effortColor}; font-weight:bold;"><br>&nbsp;&nbsp;${formatHM(totalDiff)}</span>
+    　　　    　 <br><span style="font-size:11px; color:#333; font-weight:normal;">&nbsp;&nbsp;(この月の合計がんばり時間)</span><br>
+       　　  </div>`;
+　　}
 }
+    
 function editRecord(date){
     document.getElementById("date").value = date;
     loadDailyData();
