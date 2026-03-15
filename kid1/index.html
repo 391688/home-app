@@ -988,14 +988,21 @@ function loadReportInline(){
     const effortColor = totalDiff >= 0 ? "green" : "red";
     const effortEl = document.getElementById("reportEffort");
 
-    if(effortEl) {
-    　　effortEl.innerHTML = `
-       　　 <div class="effort-block">
-   　　   ※がんばり時間&nbsp;&nbsp;
-    　　    　　 <span style="color:${effortColor}; font-weight:bold;">&nbsp;&nbsp;${formatHM(totalDiff)}</span>&nbsp;&nbsp;${totalDiff >= 0 ? '<span style="color:green; font-weight:bold;"><いい傾向です！></span>' : '<span style="color:red; font-weight:bold;"><もう少し意識しよう></span>'}
-    　　　    　 <br><span style="font-size:11px; color:#333; font-weight:normal;">&nbsp;&nbsp;(この月の合計がんばり時間)</span><br>
-       　　  </div>`;
-　　}
+    if (effortEl) {
+    effortEl.innerHTML = `
+        <div class="effort-block">
+            ※がんばり時間
+            <span style="color:${effortColor}; font-weight:bold; margin-left:6px;">
+                ${formatHM(totalDiff)}
+            </span>
+            ${totalDiff >= 0 
+                ? '<span style="color:green; font-weight:bold; margin-left:6px;">いい傾向です！</span>'
+                : '<span style="color:red; font-weight:bold; margin-left:6px;">もう少し意識しよう</span>'}
+            <div style="font-size:11px; color:#333; font-weight:normal; margin-left:6px;">
+                (この月の合計がんばり時間)
+            </div>
+        </div>`;
+                  }
 }
     
 function editRecord(date){
