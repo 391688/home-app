@@ -921,7 +921,7 @@ function renderMonthly(){
         <span style="font-size:12px; font-weight:normal; color:#222; margin-left:5px;">
             <br>&nbsp;&nbsp;(この月の合計がんばり時間)
         </span>`;
-    effortEl.style.color = avgDiff >= 0 ? "green" : "red";
+    effortEl.style.color = totalDiff >= 0 ? "green" : "red";
     effortEl.style.fontWeight = "bold";
 
     const appliedEl = document.getElementById("monthBonusApplied");
