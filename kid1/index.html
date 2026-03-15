@@ -939,7 +939,7 @@ function renderMonthly(){
     moneyEl.style.fontWeight = "bold";
 
     document.getElementById("monthBonusCap").innerText = cap;
-    document.getElementById("monthBonusMaxLabel").innerHTML = (cap > 0 && avgMoney >= cap) ? `<span style="color:#DAA520; font-size:10px;">（上限達成！）</span>` : "";
+    document.getElementById("monthBonusMaxLabel").innerHTML = (cap > 0 && totalMoney >= cap) ? `<span style="color:#DAA520; font-size:10px;">（上限達成！）</span>` : "";
     document.getElementById("monthBase").innerText = base;
     document.getElementById("monthFinal").innerText = base + applied;
 
