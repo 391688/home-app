@@ -992,7 +992,7 @@ function loadReportInline(){
     　　effortEl.innerHTML = `
        　　 <div class="effort-block">
    　　   ※がんばり時間&nbsp;&nbsp;
-    　　    　　 <span style="color:${effortColor}; font-weight:bold;"><br>&nbsp;&nbsp;${formatHM(totalDiff)}</span>
+    　　    　　 <span style="color:${effortColor}; font-weight:bold;"><br>&nbsp;&nbsp;${formatHM(totalDiff)}</span>&nbsp;&nbsp;${effortMin >= 0 ? '<span style="color:green; font-weight:bold;"><いい傾向です！></span>' : '<span style="color:red; font-weight:bold;"><もう少し意識しよう></span>'}
     　　　    　 <br><span style="font-size:11px; color:#333; font-weight:normal;">&nbsp;&nbsp;(この月の合計がんばり時間)</span><br>
        　　  </div>`;
 　　}
