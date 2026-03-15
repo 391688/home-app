@@ -610,11 +610,11 @@ input[type="number"] {
 <table class="month-table">
       <thead>
         <tr>
-          <th style="width:60px;">日付</th>
-          <th style="width:60px;">上限</th>
+          <th style="width:55px;">日付</th>
+          <th style="width:67px;">上限</th>
           <th>使用（差分）</th>
-          <th style="width:60px;">金額</th>
-          <th style="width:85px;">操作</th>
+          <th style="width:50px;">金額</th>
+          <th style="width:59px;">操作</th>
         </tr>
       </thead>
       <tbody id="monthlyTable"></tbody>
@@ -648,7 +648,7 @@ input[type="number"] {
       <div style="margin-bottom:10px;"><label style="font-size:12px;color:#666;">表示月</label><input type="month" id="reportMonthInput" style="width:100%;padding:6px;border-radius:8px;border:1px solid #ddd;"></div>
       <div id="reportMonth" style="font-size:14px;color:#777;"></div>
       <div style="font-size:19px;font-weight:bold;margin:10px 0;">📱 今月のスマホ管理レポート</div>
-      <div style="font-size:12px;color:#888;letter-spacing:1px;margin-bottom:-16px;">1日平均使用時間</div>
+      <div style="font-size:12px;color:#888;letter-spacing:1px;margin-bottom:-16px;">月の合計使用時間</div>
       <div id="reportAvgUse" style="font-size:42px;font-weight:bold;margin:20px 0;">0時間0分</div>
       <div id="reportFinal" style="font-size:18px;color:#222;margin-top:-10px;margin-bottom:14px;">翌月小遣い：0 円</div>
       <div class="info">
@@ -672,7 +672,7 @@ input[type="number"] {
             </div>
             
             <div class="main-stat-container">
-                <div class="main-stat-label">1日平均の使用時間</div>
+                <div class="main-stat-label">月の合計使用時間</div>
                 <div id="progAvgUse" class="main-stat-value">0<span style="font-size:20px;">h</span>00<span style="font-size:20px;">m</span></div>
             </div>
 
@@ -682,7 +682,7 @@ input[type="number"] {
                     <span id="progFinalMoney" class="sub-stat-amount" style="color: #4effca;">0 円</span>
                 </div>
                 <div class="sub-stat-item">
-                    <div class="stat-label" style="font-size:11px; opacity:0.7; margin-bottom:5px;">平均がんばり時間</div>
+                    <div class="stat-label" style="font-size:11px; opacity:0.7; margin-bottom:5px;">合計がんばり時間</div>
                     <span id="progEffort" class="sub-stat-amount">0h00m</span>
                 </div>
             </div>
@@ -895,8 +895,8 @@ function renderMonthly(){
                 <td class="${d.money > 0 ? 'plus' : (d.money < 0 ? 'minus' : 'zero')}" style="font-weight:bold;">${d.money}円</td>
 <td style="vertical-align: middle; padding: 0;">
     <div style="display: flex; justify-content: center; align-items: center; gap: 5px; height: 42px;">
-        <button class="btn-edit" onclick="editRecord('${date}')" style="width: 30px; height: 30px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">修</button>
-        <button class="btn-delete" onclick="deleteRecord('${date}')" style="width: 30px; height: 30px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">削</button>
+        <button class="btn-edit" onclick="editRecord('${date}')" style="width: 23px; height: 23px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">修</button>
+        <button class="btn-delete" onclick="deleteRecord('${date}')" style="width: 23px; height: 23px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;">削</button>
     </div>
 </td>
             </tr>`;
@@ -958,15 +958,15 @@ function loadReportInline(){
             days++; sumUse += d.use; sumLimit += d.limit; sumMoney += d.money;
         }
     });
-    const avgUse = days ? Math.round(sumUse / days) : 0;
-    const avgMoney = days ? Math.round(sumMoney / days) : 0;
+    const totalUse = sumUse;
+    const totalMoney = sumMoney;
     const base = Number(localStorage.getItem("baseMoney") || 0);
     const cap = Number(localStorage.getItem("bonusCap") || 0);
-    let applied = avgMoney;
-    if(cap > 0 && avgMoney >= cap) applied = cap;
+    let applied = totalMoney;
+    if(cap > 0 && totalMoney >= cap) applied = cap;
 
     const avgUseEl = document.getElementById("reportAvgUse");
-    if(avgUseEl) avgUseEl.innerHTML = formatHMReport(avgUse);
+    if(avgUseEl) avgUseEl.innerHTML = formatHMReport(totalUse);
     
     const finalEl = document.getElementById("reportFinal");
     if(finalEl) finalEl.innerText = `翌月小遣い：${base + applied} 円`;
@@ -979,24 +979,32 @@ function loadReportInline(){
 
     const repAppliedEl = document.getElementById("reportBonusApplied");
     if(repAppliedEl) {
-        const capLabel = (cap > 0 && avgMoney >= cap) ? '<span style="color:#ff9800; font-weight:bold; font-size:13px; margin-right:5px;">上限達成！</span>' : '';
+        const capLabel = (cap > 0 && totalMoney >= cap) ? '<span style="color:#ff9800; font-weight:bold; font-size:13px; margin-right:5px;">上限達成！</span>' : '';
         repAppliedEl.innerHTML = capLabel + applied + " 円";
         repAppliedEl.className = "money-right " + (applied > 0 ? "plus" : (applied < 0 ? "minus" : "zero"));
     }
 
-    const effortMin = days ? Math.round((sumLimit - sumUse) / days) : 0;
-    const effortColor = effortMin >= 0 ? "green" : "red";
+    const totalDiff = sumLimit - sumUse;
+    const effortColor = totalDiff >= 0 ? "green" : "red";
     const effortEl = document.getElementById("reportEffort");
 
-    if(effortEl) {
-        effortEl.innerHTML = `
-            <div class="effort-block">
-                ※がんばり時間&nbsp;&nbsp;
-                <span style="color:${effortColor}; font-weight:bold;"><br>&nbsp;&nbsp;${formatHM(effortMin)}</span>&nbsp;&nbsp;${effortMin >= 0 ? '<span style="color:green; font-weight:bold;"><いい傾向です！></span>' : '<span style="color:red; font-weight:bold;"><もう少し意識しよう></span>'}
-                <br><span style="font-size:11px; color:#333; font-weight:normal;">&nbsp;&nbsp;(1日の上限使用時間－月の1日平均使用時間)</span><br>
-            </div>`;
-    }
+    if (effortEl) {
+    effortEl.innerHTML = `
+        <div class="effort-block">
+            ※がんばり時間
+            <span style="color:${effortColor}; font-weight:bold; margin-left:6px;">
+                ${formatHM(totalDiff)}
+            </span>
+            ${totalDiff >= 0 
+                ? '<span style="color:green; font-weight:bold; margin-left:6px;">いい傾向です！</span>'
+                : '<span style="color:red; font-weight:bold; margin-left:6px;">もう少し意識しよう</span>'}
+            <div style="font-size:11px; color:#333; font-weight:normal; margin-left:6px;">
+                (この月の合計がんばり時間)
+            </div>
+        </div>`;
+                  }
 }
+    
 function editRecord(date){
     document.getElementById("date").value = date;
     loadDailyData();
@@ -1139,25 +1147,25 @@ function renderProgress() {
         sumMoney += d.money;
     });
 
-    const avgUse = days ? Math.round(sumUse / days) : 0;
-    const effortAvg = days ? Math.round((sumLimit - sumUse) / days) : 0;
-    const moneyAvg = days ? Math.round(sumMoney / days) : 0;
+    const totalUse = sumUse;
+    const totalDiff = sumLimit - sumUse;
+    const totalMoney = sumMoney;
     
     const base = Number(localStorage.getItem("baseMoney") || 0);
     const cap = Number(localStorage.getItem("bonusCap") || 0);
-    const appliedBonus = (cap > 0 && moneyAvg >= cap) ? cap : moneyAvg;
+    const appliedBonus = (cap > 0 && totalMoney >= cap) ? cap : totalMoney;
 
-    const h = Math.floor(avgUse / 60);
-    const m = String(avgUse % 60).padStart(2, '0');
+    const h = Math.floor(totalUse / 60);
+    const m = String(totalUse % 60).padStart(2, '0');
     document.getElementById("progAvgUse").innerHTML = `${h}<span style="font-size:24px;">h</span>${m}<span style="font-size:24px;">m</span>`;
 
     document.getElementById("progFinalMoney").innerText = (base + appliedBonus).toLocaleString() + " 円";
 
-    const eh = Math.floor(Math.abs(effortAvg) / 60);
-    const em = String(Math.abs(effortAvg) % 60).padStart(2, '0');
+    const eh = Math.floor(Math.abs(totalDiff) / 60);
+    const em = String(Math.abs(totalDiff) % 60).padStart(2, '0');
     const effortEl = document.getElementById("progEffort");
-    effortEl.innerText = `${effortAvg < 0 ? '-' : ''}${eh}h${em}m`;
-    effortEl.style.color = effortAvg >= 0 ? "#4effca" : "#ff6b6b";
+    effortEl.innerText = `${totalDiff < 0 ? '-' : ''}${eh}h${em}m`;
+    effortEl.style.color = totalDiff >= 0 ? "#4effca" : "#ff6b6b";
 }
 
 if(name === "progress") renderProgress();
